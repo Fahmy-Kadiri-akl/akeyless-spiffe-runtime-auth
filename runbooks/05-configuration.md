@@ -9,8 +9,10 @@ This is what each variable does.
 |---|---|
 | `AKEYLESS_GATEWAY` | The Akeyless API gateway the app calls to trade the SVID for a token and read secrets. |
 | `AKEYLESS_TOKEN` | A short-lived token (`t-...`) for the bootstrap. The only way the bootstrap authenticates; a missing token is a hard failure. |
-| `AKEYLESS_CA_CERT` | empty | Path to a PEM CA certificate file so the app's HTTP client trusts a self-signed or internal gateway. Unset for a publicly trusted gateway. |
 
+`AKEYLESS_CA_CERT` is optional: set it to a PEM CA certificate file so the
+app's HTTP client trusts a self-signed or internal gateway. See
+[TLS and self-signed gateways](#tls-and-self-signed-gateways) below.
 
 ## Trust domain and identity
 

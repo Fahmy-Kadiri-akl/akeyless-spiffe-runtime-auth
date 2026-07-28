@@ -26,7 +26,7 @@ You do not set a demo value. The bootstrap generates one in Akeyless.
 ./spire/up.sh
 ```
 
-Expected: the script ends with `==> SPIRE is up.` This starts the spire-server,
+The script ends with `==> SPIRE is up.` It starts the spire-server,
 starts the spire-agent with a one-time join token, waits until the Workload API
 is issuing SVIDs, and registers the workload. The `host` image is pulled
 pre-built from GHCR; you only build from source if you change the app.
@@ -40,7 +40,7 @@ Always start with `./spire/up.sh`, never plain `docker compose up`, because
 ./bootstrap/setup-akeyless.sh
 ```
 
-Expected: it ends with `[setup] done.` This dumps the SPIRE trust bundle,
+The script ends with `[setup] done.` It dumps the SPIRE trust bundle,
 converts it to a standard JWKS, creates the OAuth2/JWT auth method, creates a
 least-privilege role bound to the workload's SPIFFE ID, creates the demo
 secret, and publishes the auth-method access id to
@@ -54,12 +54,12 @@ docker compose --project-directory . -f spire/docker-compose.yml exec host \
   dotnet /app/bin/Release/net8.0/secret-consumer.dll
 ```
 
-Expected three lines:
+The app prints three steps:
 
 ```
 [1/3] Fetching JWT-SVID (audience=akeyless) from /tmp/spire-agent/public/api.sock ...
-      got SVID (330 bytes), sub=spiffe://example.org/ns/default/sa/secret-consumer
-[2/3] Authenticating to Akeyless via auth method p-... ...
+      got SVID (330 bytes), sub=spiffe://example.org/ns/default/sa/secret-consumer, exp=...
+[2/3] Authenticating to Akeyless at https://your-account.akeyless.cloud/api/v2/auth ...
       got Akeyless token (35 bytes)
 [3/3] Reading secret /spiffe/demo/db-password ...
       secret value: spiffe-demo-<timestamp>
