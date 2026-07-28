@@ -166,11 +166,13 @@ file. A publicly trusted gateway needs no CA file.
 
 ### Akeyless calls hit the wrong endpoint, or fail with `Missing required parameter - AccessId`
 
-**Cause.** The auth endpoint is `/api/v2/auth`, not `/auth`. A gateway URL
-without the `/api/v2` path lands on the wrong endpoint.
+**Cause.** The auth endpoint is `/api/v2/auth`. `AKEYLESS_GATEWAY` should be the
+base URL without `/api/v2`; the code appends the path. If the gateway URL
+already includes `/api/v2`, the call lands on `/api/v2/api/v2/...` and fails.
 
-**Fix.** Include `/api/v2` in the gateway URL, for example
-`https://your-gateway/api/v2`.
+**Fix.** Set `AKEYLESS_GATEWAY` to the base URL, for example
+`https://your-gateway`. The Upstream Authority plugin's `akeyless_gateway_url`
+field is different: that one DOES include `/api/v2`.
 
 ### The PKI issuer rejects the SPIRE CA with `not part of allowed URI SANs list`
 
