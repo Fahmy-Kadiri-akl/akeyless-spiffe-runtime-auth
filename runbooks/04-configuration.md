@@ -41,22 +41,30 @@ These three are the heart of the identity model. The detail is in
 
 ## Lifetimes
 
-These are Go duration strings, like `5m`, `1h`, `24h`. SPIRE's own defaults
-apply unless you override them.
+SPIRE issues identities and keys on fixed cadences. These are the defaults and
+what renews each one:
+
+| Lifecycle | Default | Renewal |
+|---|---|---|
+| JWT-SVID | 5 minutes | Fetched fresh on every run. The app requests a new one each call, so it is never stored or rotated. |
+| X.509-SVID | 1 hour | Auto-renewed by spire-agent before expiry. Used by the mTLS demo. |
+| Agent SVID | 1 hour | Auto-renewed by spire-agent before expiry. |
+| Trust-root CA and JWT signing key | 24 hours | Rotated by spire-server on this cadence. |
+
+You can override the JWT-SVID, X.509-SVID, and CA lifetimes in `.env`. Values
+are Go duration strings like `5m`, `1h`, `24h`, and `spire/up.sh` renders them
+into the SPIRE configs so a change propagates end to end.
 
 | Variable | Default | What it controls |
 |---|---|---|
-| `JWT_SVID_TTL` | `5m` | How long each JWT-SVID lives. Shorter tightens the anti-theft window: a stolen SVID stops working sooner. This is the value that most directly limits the damage of a leaked token. |
-| `CA_TTL` | `24h` | How long the trust-root CA and JWT signing key live before SPIRE rotates them. |
-| `X509_SVID_TTL` | `1h` | How long each X.509-SVID lives, used by the mTLS demo. |
+| `JWT_SVID_TTL` | `5m` | Lifetime of each JWT-SVID. Shorter tightens the anti-theft window, because a stolen SVID stops working sooner. |
+| `X509_SVID_TTL` | `1h` | Lifetime of each X.509-SVID, used by the mTLS demo. The go-spiffe library refreshes each one before expiry. |
+| `CA_TTL` | `24h` | Lifetime of the trust-root CA and JWT signing key before SPIRE rotates them. |
 
-The Akeyless secret-read path uses JWT-SVIDs, but the repo also ships an
-X.509-SVID mTLS demo where two workloads authenticate each other over mutual
-TLS. `X509_SVID_TTL` governs the lifetime of those X.509-SVIDs; the go-spiffe
-library refreshes each one before it expires, so the demo keeps working across
-rotation. Run it with [X.509-SVID mTLS](08-x509-mtls.md). See
-[SVIDs](01-concepts.md#svids-the-identity-document) for why the Akeyless path
-itself is JWT-only.
+The agent SVID lifetime is not exposed as a variable. It stays at SPIRE's one
+hour and is renewed by the agent. See [X.509-SVID mTLS](08-x509-mtls.md) to run
+the X.509 path, and [SVIDs](01-concepts.md#svids-the-identity-document) for why
+the Akeyless path itself is JWT-only.
 
 When SPIRE rotates its JWT signing key on the CA cadence, the inline JWKS stored
 on the Akeyless auth method goes stale, and SVIDs are rejected until you re-run
