@@ -16,6 +16,7 @@ real. Each concern has a demo form and a production form.
 
 ## Trust root: Akeyless as upstream authority
 
+The goal is a root your whole fleet trusts and that rotates without an outage.
 A self-signed root in a local volume is hard to rotate, hard to audit, and
 trusted by no one but itself. Make Akeyless the upstream authority so it signs
 and rotates SPIRE's CA. Configure the SPIRE Upstream Authority plugin against
@@ -44,18 +45,20 @@ details that are easy to get wrong:
 
 ## Bundle distribution
 
-The demo inlines the JWKS at bootstrap time. It goes stale whenever SPIRE
-rotates its JWT signing key on the CA cadence, and Akeyless rejects every SVID
-until you re-run `bootstrap/setup-akeyless.sh`. In production set
+Use this wherever SPIRE rotates keys, so authentication survives rotation
+without a manual re-bootstrap. The demo inlines the JWKS at bootstrap time. It
+goes stale whenever SPIRE rotates its JWT signing key on the CA cadence, and
+Akeyless rejects every SVID until you re-run `bootstrap/setup-akeyless.sh`. In production set
 `SPIRE_BUNDLE_ENDPOINT` to a public bundle endpoint. Akeyless fetches the bundle
 at runtime and tracks rotation automatically, so authentication survives
 key rotation with no manual re-bootstrap.
 
 ## Workload selectors
 
-The selector is the real gate on who can be this workload, so treat it as a
-security boundary. The demo's `unix:uid:0` lets any root process on the host
-fetch the SVID. Narrow it: run the workload under a dedicated UID and select on
+Narrowing the selector shrinks the blast radius of a compromised process to
+its own identity. The selector is the real gate on who can be this workload, so
+treat it as a security boundary. The demo's `unix:uid:0` lets any root process
+on the host fetch the SVID. Narrow it: run the workload under a dedicated UID and select on
 that UID, or select on the executable path, or use the Docker workload attestor
 with an image or label selector.
 
@@ -105,6 +108,23 @@ domain. Each environment-and-unit pair is its own domain with its own server:
 spiffe://prod.payments.acme.internal/sa/billing
 spiffe://prod.search.acme.internal/sa/indexer
 ```
+
+#### One trust domain, many workloads: least privilege
+
+The point of running several workloads under one trust domain is least
+privilege. A payments unit has services that trust each other but need different
+secrets. They share the domain and differ by path, so each gets its own role
+binding:
+
+| Workload SPIFFE ID | Job | Secret it may read |
+|---|---|---|
+| `spiffe://prod.payments.acme.internal/sa/billing` | charge customers | `payments/stripe-key` |
+| `spiffe://prod.payments.acme.internal/sa/payouts` | pay merchants | `payments/bank-credential` |
+| `spiffe://prod.payments.acme.internal/sa/recon` | match invoices to payments | `payments/ledger` (read) |
+
+Akeyless matches the full SPIFFE ID, so a compromised `billing` workload cannot
+read `payouts`'s bank credential. The trust domain groups the services; the
+path distinguishes them and carries per-workload authorization.
 
 The rare case where two domains must genuinely honor each other's identities
 uses SPIFFE federation, not a shared trust domain.
