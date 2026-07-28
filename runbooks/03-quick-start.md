@@ -89,7 +89,9 @@ SVID, Akeyless accepted it, and the role granted read access to the secret.
 The `exp=...` on the first line is the SVID's expiry time as a Unix timestamp.
 It is minutes away, which is the anti-theft window. The `spiffe-demo-<timestamp>`
 value is the demo payload the bootstrap wrote into Akeyless; the number is the
-time it was created.
+time it was created. Both the path and the value are demo defaults; override the
+path with `AKEYLESS_SECRET` and the value with `AKEYLESS_DEMO_SECRET` in `.env`
+before step 3.
 
 ## Tear down
 
