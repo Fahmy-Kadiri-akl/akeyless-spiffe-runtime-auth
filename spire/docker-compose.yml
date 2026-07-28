@@ -33,8 +33,8 @@ services:
       retries: 20
 
   host:
-    # Pulled pre-built from GHCR by default (see the publish workflow). The
-    # build is a fallback for local development from source.
+    # Pulled pre-built from GHCR by default. The build is a fallback for
+    # local development from source.
     image: ghcr.io/fahmy-kadiri-akl/akeyless-spiffe-runtime-auth-host:latest
     build:
       context: .

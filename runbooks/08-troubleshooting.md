@@ -122,14 +122,13 @@ method holds a stale JWKS from the old root.
 the running server and recreates the auth method with the current JWKS. Do not
 reuse a cached bundle file.
 
-### `akeyless auth` reports `undefined option --auth-method-name`
+### Auth fails: `Missing required parameter - AccessId`
 
-**Cause.** The CLI `auth` command does not accept `--auth-method-name`. It needs
-the auth method's access id.
+**Cause.** The `/api/v2/auth` endpoint requires `access-id` (starts with `p-`),
+not the auth method name.
 
-**Fix.** Use `akeyless auth --access-id <p-...> --access-type jwt --jwt <svid>`.
-The bootstrap writes the access id to `spire/.data/akeyless-access-id`, and the
-app reads it from there.
+**Fix.** Use the auth method's access id. The bootstrap writes it to
+`spire/.data/akeyless-access-id`, and the app reads it from there.
 
 ## Token and access-id problems
 
@@ -150,26 +149,14 @@ then run the app again.
 **Cause.** The short-lived token in `AKEYLESS_TOKEN` expired. Tokens are
 short-lived by design.
 
-**Fix.** Re-mint a token with `akeyless auth ...` and update `AKEYLESS_TOKEN`
-in `.env`.
-
-### A secret scanner flags a hardcoded value
-
-**Cause.** A hardcoded, secret-shaped literal passed to `create-secret --value`
-reads as a hardcoded secret to scanners such as GitGuardian.
-
-**Fix.** The bootstrap generates the demo payload in Akeyless itself, as
-`spiffe-demo-` plus a timestamp, so nothing secret-shaped is committed. Never
-hardcode a secret-shaped literal.
+**Fix.** Re-mint a token and update `AKEYLESS_TOKEN` in `.env`.
 
 ## TLS and certificate errors
 
 ### A self-signed or internal gateway fails with a TLS or certificate error
 
 **Cause.** The app calls the Akeyless REST API over HTTPS with strict TLS. A
-self-signed or internal gateway CA is not trusted, so the handshake fails. The
-`akeyless` CLI on the admin host tolerates self-signed certificates, but the
-app's HTTP client does not.
+self-signed or internal gateway CA is not trusted, so the handshake fails.
 
 **Fix.** Set `AKEYLESS_CA_CERT` to a PEM CA certificate file so the app's HTTP
 client trusts the gateway CA. Pass it to the app at exec time, because the host
@@ -221,18 +208,9 @@ the parent of the repo root, so the Dockerfile is not found.
 
 **Fix.** Use `build.context: .` for the repo root.
 
-### Publishing to GHCR returns `403 Forbidden`
-
-**Cause.** A manually pushed package is unlinked and user-owned, so the
-repo-scoped `GITHUB_TOKEN` in CI cannot write to it.
-
-**Fix.** Build and publish through the CI workflow so the package is
-repo-linked and public, and name images under the repo namespace, for example
-`ghcr.io/<owner>/<repo>/agent`.
-
 ## Intermittent infrastructure failures
 
-### `Could not resolve host` or `server misbehaving` for github.com, ghcr.io, or vault-ro.akeyless.io
+### `Could not resolve host` or `server misbehaving` for github.com or ghcr.io
 
 **Cause.** Transient DNS or network flakiness on the host, not a repo problem.
 

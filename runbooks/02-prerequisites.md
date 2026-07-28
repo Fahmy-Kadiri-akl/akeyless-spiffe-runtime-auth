@@ -35,18 +35,17 @@ expires on its own, so no permanent admin credential survives in the repo or CI
 history. It needs the capabilities listed under "Required Akeyless permissions"
 below.
 
-The bootstrap script calls the Akeyless CLI to create the auth method, role, and
-secret, so the CLI must be on PATH wherever you run
-`./bootstrap/setup-akeyless.sh`. It is a general tool; install it the way you
-normally do for Akeyless. The reference app does not use it: the app calls the
-Akeyless REST API directly, so no CLI ships in the container.
+The bootstrap uses curl and jq to call the Akeyless REST API directly. Both are
+standard on most Linux systems. No Akeyless CLI is needed for this repo.
 
 ### Check that the token works
 
 Before you start, confirm the token is valid and not expired:
 
 ```bash
-akeyless get-auth-method --name /does-not-matter --token <your-t-token>
+curl -s -X POST "$AKEYLESS_GATEWAY/api/v2/get-auth-method" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"/does-not-matter","token":"<your-t-token>"}'
 ```
 
 A valid token prints an error about the method not existing, because

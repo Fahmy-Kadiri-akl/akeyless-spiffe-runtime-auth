@@ -51,8 +51,8 @@ SPIRE's bundle format is not a standard JWKS on its own. See
 
 ## The access id
 
-`akeyless auth` takes the auth method's access id, not its name. The bootstrap
-writes that id to `spire/.data/akeyless-access-id`, which the host container
+The Akeyless `/api/v2/auth` endpoint takes the auth method's access id, not its
+name. The bootstrap writes that id to `spire/.data/akeyless-access-id`, which the host container
 mounts at `/run/spire-data/akeyless-access-id`. The app reads it at runtime, so
 the bootstrap can run after the container starts. If the app cannot find it, see
 [Troubleshooting](08-troubleshooting.md).
@@ -87,10 +87,8 @@ set for each, is covered in
 `spire/down.sh` removes the SPIRE containers and volumes but leaves the Akeyless
 auth method, role, and secret in your account. To remove them:
 
-```bash
-akeyless auth-method delete --name "$AKEYLESS_AUTH_METHOD" --token "$AKEYLESS_TOKEN"
-akeyless delete-role --name "$AKEYLESS_ROLE" --token "$AKEYLESS_TOKEN"
-akeyless delete-secret --name "$AKEYLESS_SECRET" --token "$AKEYLESS_TOKEN"
-```
+Delete the auth method, role, and secret from your Akeyless account, either
+through the Akeyless console or the REST API (`/api/v2/delete-auth-method`,
+`/api/v2/delete-role`, `/api/v2/delete-item`).
 
 Next: [Configuration](05-configuration.md)
