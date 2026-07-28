@@ -30,7 +30,7 @@ SECRET="${AKEYLESS_SECRET:-/spiffe/demo/db-password}"
 # payload and writes it there so a first-time user has something to read back.
 # Nothing is stored in .env. In production you provision your own secret at this
 # path and the bootstrap leaves it alone.
-DEMO_SECRET_VALUE="spiffe-demo-$(date +%s)"
+DEMO_SECRET_VALUE="${AKEYLESS_DEMO_SECRET:-spiffe-demo-$(date +%s)}"
 # Rule path covers the secret's folder, so a custom SECRET path still works.
 RULE_PATH="$(dirname "$SECRET")"/*
 

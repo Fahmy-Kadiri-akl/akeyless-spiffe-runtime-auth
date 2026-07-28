@@ -96,16 +96,26 @@ Namespace these per environment so each bootstrap touches only its own objects:
 
 See [Required Akeyless permissions](02-prerequisites.md#required-akeyless-permissions).
 
-## The demo secret lives in Akeyless, not in `.env`
+## The demo secret: default and override
 
-The demo secret proves the flow worked. The bootstrap generates an ephemeral
-value, `spiffe-demo-` plus a timestamp, and writes it into Akeyless directly.
-Nothing secret-shaped sits in `.env` or the repo, and you do not set it.
+The demo secret proves the flow worked. By default the bootstrap generates its
+value and writes it into Akeyless directly, so nothing secret-shaped has to sit
+in `.env` or the repo.
+
+| What | Default | How to override |
+|---|---|---|
+| secret path | `/spiffe/demo/db-password` | `AKEYLESS_SECRET` in `.env` |
+| secret value | a generated throwaway, `spiffe-demo-<timestamp>` | `AKEYLESS_DEMO_SECRET` in `.env` |
+
+Set the overrides in `.env` before you run `bootstrap/setup-akeyless.sh`. The
+bootstrap creates the secret only if the path does not already exist, so to
+change the value of an existing demo secret, delete it first or point
+`AKEYLESS_SECRET` at a new path.
 
 In production, provision your own secret in Akeyless through the console or the
-admin CLI, and point `AKEYLESS_SECRET` at that path. The app reads it at runtime.
-The bootstrap leaves an existing secret alone, because `create-secret` no-ops
-when the path already exists.
+admin CLI, point `AKEYLESS_SECRET` at that path, and leave `AKEYLESS_DEMO_SECRET`
+unset. The app reads the secret at runtime; the bootstrap leaves an existing
+secret alone.
 
 ## TLS and self-signed gateways
 
