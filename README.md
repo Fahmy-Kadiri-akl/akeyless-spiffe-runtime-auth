@@ -1,16 +1,15 @@
 # Runtime Authentication to Akeyless with SPIFFE / SPIRE
 
-A runnable reference for authenticating an on-premises workload to Akeyless with a SPIRE-issued JWT-SVID and reading a secret. The workload holds no credential of any kind. On each run it fetches a fresh SVID from the SPIRE Workload API, exchanges it for an Akeyless token, and reads the secret.
+A runnable reference for authenticating an on-premises workload to Akeyless with a SPIRE-issued JWT-SVID and reading a secret. The workload holds no credential of any kind. On each run it fetches a fresh identity document from the SPIRE Workload API, trades it for a short-lived Akeyless token, and reads the secret. Nothing secret is stored on disk.
 
-> New to SPIFFE or SPIRE? Start with the [runbooks](runbooks/), a beginner series covering concepts, setup, deployment, and troubleshooting. This README is the overview; the runbooks carry the depth.
+This README is the landing page. It tells you what the repo is, gets you through a working demo, and points you at the [runbooks](runbooks/) for the full explanation. If any term below is new to you, read [Concepts you need first](runbooks/01-concepts.md) before the quick start. It defines every piece in plain language.
 
 ## Why use this
 
-- Zero secret material on the host: no token file, no API key at rest.
-- Workloads attest instead of carrying credentials.
-- Short-lived, audience-bound identities that expire on their own.
-- Replays after expiry fail and are recorded in the Akeyless audit log.
-- Authority scoped to a single secret path by a role bound to the SPIFFE ID.
+- Zero secret material on the host. There is no token file and no API key at rest.
+- Workloads prove who they are instead of carrying a credential.
+- Identities are short-lived and audience-bound, so they expire on their own and cannot be replayed elsewhere.
+- A workload's authority is scoped to a single secret path by a role bound to its identity.
 
 ## How it works
 
@@ -30,7 +29,7 @@ sequenceDiagram
     AKL-->>App: secret value
 ```
 
-SPIRE attests the workload and issues it a short-lived JWT-SVID. The workload trades the SVID for an Akeyless token and reads the secret with it. The SVID exists only in memory for the call. For what each piece is and why it exists, see [Concepts you need first](runbooks/01-concepts.md).
+SPIRE vouches for the workload and hands it a short-lived JWT-SVID. The workload trades that SVID for an Akeyless token and reads the secret. The SVID lives only in memory for the call. Each piece is defined in [Concepts](runbooks/01-concepts.md).
 
 ## Alternatives
 
@@ -50,7 +49,6 @@ This repo is the SPIFFE/SPIRE counterpart to [akeyless-uid-runtime-auth](https:/
 - The Akeyless CLI on the admin host, used to mint a token and run the bootstrap.
 - A short-lived Akeyless token starting with `t-`, with permission to create auth methods, roles, and secrets.
 - Your Akeyless API gateway URL, reachable from the host running the app.
-- Python 3, only if you run `bootstrap/verify-svid.sh`.
 
 For install commands, token minting, and the exact capabilities the token needs, see [Prerequisites](runbooks/02-prerequisites.md).
 
@@ -71,12 +69,14 @@ cd akeyless-spiffe-runtime-auth
 cp spire/spire.env.example .env
 ```
 
-Edit `.env` and set two values. The bootstrap generates the demo secret in Akeyless, so nothing else is required.
+Edit `.env` and set two values:
 
 ```
 AKEYLESS_GATEWAY=https://your-account.akeyless.cloud/api/v2
 AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
 ```
+
+Everything else in `.env` sits under `# ---- advanced ----` and already has defaults that work for the demo. Leave it as-is. What each value means, including what it would mean in production, is in the [Configuration reference](runbooks/04-configuration.md).
 
 ### 3. Start SPIRE
 
@@ -126,26 +126,26 @@ If a step fails, find the matching error in [Troubleshooting](runbooks/07-troubl
 
 | Goal | Guide |
 |---|---|
-| Understand SPIFFE, SPIRE, SVIDs, and trust domains | [Concepts](runbooks/01-concepts.md) |
+| Understand SPIFFE, SPIRE, SVIDs, trust domains, and audience | [Concepts](runbooks/01-concepts.md) |
 | Verify your environment and permissions | [Prerequisites](runbooks/02-prerequisites.md) |
 | The quick start with full explanations | [Quick start runbook](runbooks/03-quick-start.md) |
-| Run an agent for your own app, host, or language | [Deploying agents](runbooks/04-deploying-agents.md) |
-| Change trust domain, TTLs, gateway, or paths | [Configuration reference](runbooks/05-configuration.md) |
-| Move from the demo to production | [Production hardening](runbooks/06-production.md) |
+| Understand every value in `.env`, including production implications | [Configuration reference](runbooks/04-configuration.md) |
+| Move from the demo to production | [Production hardening](runbooks/05-production.md) |
+| Run an agent for your own app, host, or language | [Deploying agents](runbooks/06-deploying-agents.md) |
 | Diagnose a failure | [Troubleshooting](runbooks/07-troubleshooting.md) |
 
 ## Security model
 
 No credential is written to disk. The SVID lives only in memory for the call, is short-lived and audience-bound, and replaying it after expiry fails and is recorded in the Akeyless audit log. The workload's authority comes from the Akeyless role bound to its SPIFFE ID, not from the SVID itself.
 
-A compromised host is not stopped in real time: an attacker running code as the workload's UID can fetch valid SVIDs for as long as they hold that position. The defense is detection and revocation. For the full model and its limits, see [Security model and limitations](runbooks/06-production.md#security-model-and-limitations).
+A compromised host is not stopped in real time: an attacker running code as the workload's UID can fetch valid SVIDs for as long as they hold that position. The defense is detection and revocation, which the short SVID lifetime and audit log make possible. For the full model and its limits, see [Production hardening](runbooks/05-production.md).
 
 ## Repository layout
 
 ```
 spire/                         dev SPIRE topology and orchestration
   docker-compose.yml           spire-server and host services
-  server.conf                  dev trust domain, self-signed CA
+  server.conf                  dev trust domain, self-signed CA, lifetimes
   agent.conf                   Workload API socket, bootstrap
   Dockerfile.host              .NET 8 SDK with spire-agent and the .NET reference app
   up.sh / down.sh              start and tear down the stack
@@ -162,7 +162,7 @@ agent/                         portable, app-agnostic SPIRE agent
 app/                           .NET 8 reference workload
   Program.cs                   fetch SVID, authenticate, read secret
   SecretConsumer.csproj
-runbooks/                      beginner guides: concepts, setup, deployment, troubleshooting
+runbooks/                      beginner guides: concepts, setup, production, troubleshooting
 ```
 
 ## License

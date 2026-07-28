@@ -1,24 +1,24 @@
 # Runbooks
 
-Step-by-step operator guides for authenticating a workload to Akeyless with
-SPIFFE/SPIRE. Read these if you have no background in SPIFFE, SPIRE, or
-Akeyless machine identity.
+Step-by-step guides for authenticating a workload to Akeyless with
+SPIFFE/SPIRE, written for a reader who is new to all of it. They build on each
+other in order.
 
 ## Reading order
 
-The runbooks are numbered and build on each other. First-time setup runs
-straight through 01 to 06. If something breaks, jump to 07.
+The runbooks are numbered and follow a learning path. First-time setup runs
+straight through 01 to 04. If something breaks, jump to 07.
 
-| # | Document | When you need it |
+| # | Guide | When you need it |
 |---|---|---|
-| 1 | [Concepts you need first](01-concepts.md) | You have never heard of SPIFFE, SPIRE, SVIDs, or trust domains. Read once before anything else. |
-| 2 | [Prerequisites](02-prerequisites.md) | Verify before starting. Most failures later trace back to a missed prereq. |
-| 3 | [Quick start](03-quick-start.md) | Get a secret end to end on one host in about ten minutes. |
-| 4 | [Deploying an agent for your application](04-deploying-agents.md) | Your app runs on a different host, or in a different language, and needs identity. |
-| 5 | [Configuration reference](05-configuration.md) | Change trust domain, TTLs, gateway, paths, or the demo secret. |
-| 6 | [Production hardening](06-production.md) | Moving from the dev demo to production: trust root, selectors, bundle distribution, security model. |
-| 7 | [Troubleshooting](07-troubleshooting.md) | Categorized failure modes with diagnoses and fixes. |
+| 1 | [Concepts you need first](01-concepts.md) | You are new to SPIFFE, SPIRE, SVIDs, trust domains, or audience. Read once before anything else. |
+| 2 | [Prerequisites](02-prerequisites.md) | Verify your environment before starting. Most failures later trace back to a missed prerequisite. |
+| 3 | [Quick start](03-quick-start.md) | Get a secret end to end on one host. |
+| 4 | [Configuration reference](04-configuration.md) | Understand every value in `.env`, including what each means in production. |
+| 5 | [Production hardening](05-production.md) | Move from the demo toward production: trust root, selectors, bundle distribution, security model. |
+| 6 | [Deploying agents](06-deploying-agents.md) | Put an agent on each of your own hosts, for your own app and language. |
+| 7 | [Troubleshooting](07-troubleshooting.md) | Categorized failure modes with causes and fixes. |
 
 The repository-level [`../README.md`](../README.md) covers what the repo is,
-why it exists, and a one-shot quick start. These runbooks go deeper and are
-written for a reader who is new to all of it.
+why it exists, and a one-shot quick start. These runbooks go deeper and assume
+you have read the concepts in guide 1.
