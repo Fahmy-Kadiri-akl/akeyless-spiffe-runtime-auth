@@ -62,15 +62,12 @@ Catch it before the app does:
 
 ## JWKS freshness
 
-When SPIRE rotates its JWT signing key, every `CA_TTL` by default, the JWKS
-stored on the Akeyless auth method goes stale. SVIDs signed by the new key are
-rejected until the JWKS is refreshed.
-
-Detect this by checking the bundle endpoint or the auth method's last-update
-timestamp. In production, set `SPIRE_BUNDLE_ENDPOINT` so Akeyless fetches the
-bundle automatically. If you use inline JWKS, alert when the bundle age
-approaches `CA_TTL`. See
-[Bundle distribution](06-production.md#bundle-distribution).
+When SPIRE rotates its JWT signing key, the JWKS on the Akeyless auth method
+goes stale and SVIDs are rejected. The fix and the production recommendation
+(`SPIRE_BUNDLE_ENDPOINT`) are in
+[Configuration: Lifetimes](05-configuration.md#lifetimes) and
+[Production: Bundle distribution](06-production.md#bundle-distribution). Alert
+when auth failures spike, which is the primary signal.
 
 ## Akeyless audit events
 

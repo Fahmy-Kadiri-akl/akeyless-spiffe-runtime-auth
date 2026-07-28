@@ -23,10 +23,7 @@ app reads it from there at runtime.
 | `WORKLOAD_SPIFFE_ID` | `spiffe://example.org/ns/default/sa/secret-consumer` | The identity the workload is registered under and bound to in the Akeyless role. |
 | `JWT_AUDIENCE` | `akeyless` | The audience claim the SVID must carry and Akeyless requires. |
 
-> [!WARNING]
-> `example.org` is the public SPIFFE sample name. Use it only for the demo. In
-> production choose a name you control, such as `spiffe.acme.internal`, and use
-> a distinct one per environment.
+Do not reuse `example.org` in production. See [Concepts](01-concepts.md) for why.
 
 For the model behind these values, see [Concepts](01-concepts.md). For the
 production patterns, one trust domain per environment and per business unit, see

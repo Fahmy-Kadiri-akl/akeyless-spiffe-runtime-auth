@@ -148,10 +148,7 @@ reaches only its own secrets.
 The rare case where two domains must genuinely honor each other's identities
 uses SPIFFE federation, not a shared trust domain.
 
-> [!WARNING]
-> `example.org` is the public SPIFFE sample name. Use it only for the demo. In
-> production choose a name you control, such as `spiffe.acme.internal`, and
-> never reuse a trust domain across environments.
+Do not reuse `example.org` in production. See [Concepts](01-concepts.md) for why.
 
 ### How to stand up an environment
 
