@@ -20,6 +20,10 @@ New to SPIFFE or SPIRE? Read [Concepts](runbooks/01-concepts.md) first.
 
 ## How it works
 
+Two workloads, two SVID types, one trust root signed by Akeyless.
+
+**Workload 1: JWT-SVID (reads a secret)**
+
 ```mermaid
 sequenceDiagram
     participant PKI as Akeyless PKI
@@ -38,9 +42,27 @@ sequenceDiagram
     AKL-->>App: secret value
 ```
 
-SPIRE vouches for the workload and hands it a short-lived JWT-SVID. The workload trades that SVID for an Akeyless token and reads the secret. The SVID lives only in memory for the call. Each piece is defined in [Concepts](runbooks/01-concepts.md).
+The workload fetches a JWT-SVID from the Workload API, trades it for an Akeyless
+token, and reads the secret. The SVID lives only in memory for the call.
+
+**Workload 2: X.509-SVID (stored in Akeyless)**
+
+```mermaid
+flowchart LR
+    PKI["Akeyless PKI"] -->|"signs CA"| SS["spire-server"]
+    SS -->|"issues X.509-SVID"| SA["spire-agent"]
+    SA -->|"Secret Manager plugin"| SM["writes to Akeyless"]
+    Consumer["any consumer"] -->|"reads SVID material"| AKL[("Akeyless")]
+```
+
+SPIRE issues the X.509-SVID and the Secret Manager plugin stores it in Akeyless
+automatically. No application code. Any consumer can retrieve the identity
+material.
+
+See [Concepts](runbooks/01-concepts.md) for definitions.
 
 ## Alternatives
+
 
 This repo is the SPIFFE/SPIRE counterpart to [akeyless-uid-runtime-auth](https://github.com/Fahmy-Kadiri-akl/akeyless-uid-runtime-auth), which solves the same problem with Akeyless Universal Identity.
 
