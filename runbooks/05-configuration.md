@@ -1,7 +1,7 @@
 # Configuration reference
 
 Every value lives in `.env`, copied from `spire/spire.env.example`. For the demo
-you set only `AKEYLESS_GATEWAY` and `AKEYLESS_TOKEN`; the rest has working
+you set `AKEYLESS_GATEWAY`, `AKEYLESS_TOKEN`, `ACCESS_ID`, and `ACCESS_KEY`; the rest has working
 defaults. Each table below says what a value is and what it means in production.
 
 ## Required
@@ -47,7 +47,6 @@ each one:
 | JWT-SVID | 5 minutes | Fetched fresh on every run; never stored or rotated. |
 | X.509-SVID | 1 hour | Auto-renewed by spire-agent before expiry. Stored in Akeyless via Secret Manager. |
 | Agent SVID | 1 hour | Auto-renewed by spire-agent before expiry. |
-| Trust-root CA and JWT signing key | 24 hours | Rotated by spire-server on this cadence. |
 
 Override the JWT-SVID, X.509-SVID, and CA lifetimes in `.env`. Values are Go
 duration strings like `5m`, `1h`, `24h`; `spire/up.sh` renders them into the
@@ -57,7 +56,6 @@ SPIRE configs so a change propagates end to end.
 |---|---|---|
 | `JWT_SVID_TTL` | `5m` | Lifetime of each JWT-SVID. Shorter tightens the anti-theft window, because a stolen SVID stops working sooner. |
 | `X509_SVID_TTL` | `1h` | Lifetime of each X.509-SVID, used by the mTLS demo. go-spiffe refreshes each one before expiry. |
-| `CA_TTL` | `24h` | Lifetime of the trust-root CA and JWT signing key before SPIRE rotates them. |
 
 The agent SVID lifetime is not exposed as a variable; it stays at SPIRE's one
 hour and is renewed by the agent.

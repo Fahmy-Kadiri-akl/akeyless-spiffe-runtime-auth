@@ -18,11 +18,9 @@ set -a; . ./.env; set +a
 : "${JWT_AUDIENCE:=akeyless}"
 : "${X509_SVID_TTL:=1h}"
 : "${JWT_SVID_TTL:=5m}"
-: "${ACCESS_ID:?ACCESS_ID is required. Set the upstream authority access id in .env.}"
+: "${ACCESS_ID:?ACCESS_ID is required. Set the plugin access id in .env.}"
 : "${ACCESS_KEY:=}"
 UPSTREAM_CERT_ISSUER="${UPSTREAM_CERT_ISSUER:-/spiffe/demo/pki}"
-: "${ACCESS_ID:?ACCESS_ID is required. Set the Secret Manager access id in .env.}"
-: "${ACCESS_KEY:=}"
 SVID_STORE_TARGET_FOLDER="${SVID_STORE_TARGET_FOLDER:-/spiffe/demo/svid}"
 GATEWAY="${AKEYLESS_GATEWAY%/}"
 

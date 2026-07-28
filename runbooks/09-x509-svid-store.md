@@ -21,7 +21,7 @@ flowchart LR
 
 The `up.sh` script registers the X.509 workload with `-storeSVID`, which tells
 SPIRE to push the SVID to the Secret Manager plugin on the agent. The plugin
-authenticates to Akeyless with `SVID_STORE_ACCESS_ID` and writes the SVID
+authenticates to Akeyless with `ACCESS_ID` and writes the SVID
 material to the `SVID_STORE_TARGET_FOLDER` path.
 
 ## The two SVID paths compared
@@ -64,8 +64,8 @@ for the pattern; the Secret Manager auth method needs the same access-type
 options (api_key, aws_iam, gcp, azure).
 
 The plugin's role needs `create`, `update`, and `list` on the target folder
-path (`SVID_STORE_TARGET_FOLDER`). The bootstrap creates this role and auth
-method automatically.
+path (`SVID_STORE_TARGET_FOLDER`). Create the plugin credentials first; see
+[Prerequisites](02-prerequisites.md#creating-the-plugin-credentials).
 
 ## The three Akeyless SPIRE integrations
 

@@ -16,11 +16,11 @@ Edit `.env` and set four values:
 ```
 AKEYLESS_GATEWAY=https://your-account.akeyless.cloud
 AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
-UPSTREAM_ACCESS_ID=<p-...>
-UPSTREAM_ACCESS_KEY=<key>
+ACCESS_ID=<p-...>
+ACCESS_KEY=<key>
 ```
 
-`UPSTREAM_ACCESS_ID` and `UPSTREAM_ACCESS_KEY` authenticate the UpstreamAuthority
+`ACCESS_ID` and `ACCESS_KEY` authenticate both SPIRE plugins
 plugin to Akeyless PKI. [Create them
 first](02-prerequisites.md#creating-the-plugin-credentials) if you
 have not already.
