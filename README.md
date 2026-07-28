@@ -77,24 +77,19 @@ cd akeyless-spiffe-runtime-auth
 cp spire/spire.env.example .env
 ```
 
-Edit `.env` and set six values:
+Edit `.env` and set four values:
 
 ```
 AKEYLESS_GATEWAY=https://your-account.akeyless.cloud
 AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
-UPSTREAM_ACCESS_ID=<p-...>
-UPSTREAM_ACCESS_KEY=<key>
-SVID_STORE_ACCESS_ID=<p-...>
-SVID_STORE_ACCESS_KEY=<key>
+ACCESS_ID=<p-...>
+ACCESS_KEY=<key>
 ```
 
 `AKEYLESS_TOKEN` is a short-lived bootstrap token (expires on its own).
-`UPSTREAM_ACCESS_ID` and `UPSTREAM_ACCESS_KEY` authenticate the UpstreamAuthority
-plugin that signs the trust root;
-[create them first](runbooks/02-prerequisites.md#creating-the-upstreamauthority-credentials).
-`SVID_STORE_ACCESS_ID` and `SVID_STORE_ACCESS_KEY` authenticate the Secret Manager
-plugin that stores X.509-SVIDs in Akeyless;
-[create them first](runbooks/02-prerequisites.md#creating-the-secret-manager-credentials).
+`ACCESS_ID` and `ACCESS_KEY` authenticate both SPIRE plugins
+(UpstreamAuthority and Secret Manager);
+[create them first](runbooks/02-prerequisites.md#creating-the-plugin-credentials).
 
 `.env` is gitignored, so none of these reach the repo.
 
