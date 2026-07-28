@@ -76,6 +76,9 @@ on that host.
    spire-server token generate -spiffeID spiffe://<trust-domain>/agent/<host-name>
    ```
 
+   Avoid the path prefix `/spire/`, which SPIRE reserves for the server. This
+   guide uses `/agent/<host-name>`.
+
 2. On the workload host, deploy the agent:
 
    ```bash
@@ -97,8 +100,9 @@ on that host.
 
 4. Point your application at the socket,
    `/tmp/spire-agent/public/api.sock`, and fetch a JWT-SVID from the Workload
-   API with the `spire-agent` CLI or a SPIFFE SDK in your language. The app then
-   authenticates to Akeyless exactly as the reference app does.
+   API with the `spire-agent` CLI or a SPIFFE SDK in your language. The reference
+   app reads this path from `SPIFFE_WORKLOAD_SOCKET`. The app then authenticates
+   to Akeyless exactly as the reference app does.
 
 ## How the agent runs
 

@@ -139,10 +139,11 @@ app reads it from there.
 id, and container environment is fixed at creation time, so the app's
 `AKEYLESS_ACCESS_ID` was empty.
 
-**Fix.** The app reads the access id from a mounted file at
-`/run/spire-data/akeyless-access-id` at runtime, which works regardless of
-container start order. Re-run `./bootstrap/setup-akeyless.sh`, then run the app
-again.
+**Fix.** The app reads the access id at runtime from a file the bootstrap
+wrote. In the container that file is `/run/spire-data/akeyless-access-id`, the
+in-container mount of the host's `spire/.data/akeyless-access-id`, which works
+regardless of container start order. Re-run `./bootstrap/setup-akeyless.sh`,
+then run the app again.
 
 ### `failed to get credentials ... InvalidCredentials` or `credentials have expired`
 

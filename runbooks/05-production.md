@@ -146,9 +146,11 @@ uses SPIFFE federation, not a shared trust domain.
 ## Who provisions and who reads
 
 Two Akeyless identities sit around each secret, with different jobs and
-different capabilities. One stands the access up; the other uses it. The
-workload here is the same `billing` from the least-privilege table: its SPIFFE
-ID lives in the trust domain, and the role binds that exact ID.
+different capabilities. One, the bootstrap from
+[Prerequisites](02-prerequisites.md), stands the access up; the other, the
+workload, uses it. The workload here is the same `billing` from the
+least-privilege table: its SPIFFE ID lives in the trust domain, and the role
+binds that exact ID.
 
 ```mermaid
 flowchart LR
@@ -157,16 +159,16 @@ flowchart LR
   W -->|"JWT-SVID, then token"| S["secret<br/>payments/stripe-key"]
 ```
 
-Left to right: an administrator creates the auth method, the role, and the
+Left to right: the bootstrap creates the auth method, the role, and the
 secret; the role binds the workload's SPIFFE ID and grants read on the secret
 folder; the workload presents its SVID, receives a token, and reads the secret.
 
 | Identity | Authenticates with | On the secret | On the auth method and role |
 |---|---|---|---|
 | the workload, by SPIFFE ID | JWT-SVID through the auth method | `read`, `list` | none |
-| the administrator | short-lived token or API key | `create`, `update`, `delete`, `read` | `create`, `update`, `delete`, `read` |
+| the bootstrap, an admin identity | short-lived token or API key | `create`, `update`, `delete`, `read` | `create`, `update`, `delete`, `read` |
 
-The workload never creates or changes a secret. The administrator never receives
+The workload never creates or changes a secret. The bootstrap never receives
 the workload's SVID or token; it only configures the role that binds the
 workload's SPIFFE ID, then steps away.
 
