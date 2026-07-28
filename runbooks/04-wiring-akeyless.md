@@ -82,4 +82,15 @@ set for each, is covered in
 [Production](06-production.md#who-provisions-and-who-reads) and
 [Prerequisites](02-prerequisites.md#required-akeyless-permissions).
 
+## Cleanup
+
+`spire/down.sh` removes the SPIRE containers and volumes but leaves the Akeyless
+auth method, role, and secret in your account. To remove them:
+
+```bash
+akeyless auth-method delete --name "$AKEYLESS_AUTH_METHOD" --token "$AKEYLESS_TOKEN"
+akeyless delete-role --name "$AKEYLESS_ROLE" --token "$AKEYLESS_TOKEN"
+akeyless delete-secret --name "$AKEYLESS_SECRET" --token "$AKEYLESS_TOKEN"
+```
+
 Next: [Configuration](05-configuration.md)

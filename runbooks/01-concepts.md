@@ -60,8 +60,9 @@ The trust domain is the boundary of trust. The server, every agent, every
 workload registration, and the Akeyless role binding all share one trust domain.
 An identity issued inside it is meaningful only inside it.
 
-The demo uses `example.org`. That is a made-up label, not a real internet
-domain, and you do not need to own it. It is fine for a self-contained demo.
+The demo uses `example.org`. It is an IANA-reserved domain set aside for
+examples, not one you own, and you do not need to control it. It is fine for a
+self-contained demo.
 
 > [!WARNING]
 > `example.org` is the public SPIFFE sample name. Use it only for the demo. In
@@ -142,7 +143,9 @@ Two units that must not accept each other's identities get separate domains.
 The rare case where two domains genuinely need to honor each other's identities
 uses SPIFFE federation, not a shared trust domain. Federation lets each domain
 publish its bundle to the other, so a workload in one can verify an SVID issued
-by the other, without the two domains sharing a root.
+by the other, without the two domains sharing a root. Setting up federation is
+beyond this repo; see the
+[SPIFFE Federation guide](https://spiffe.io/docs/latest/architecture/federation/).
 
 ## SPIRE: server and agent
 
@@ -177,7 +180,10 @@ workload runs:
 
 The demo uses `unix:uid:0`, which makes every root process the workload. A
 dedicated UID makes only that one process the workload, so a compromised host
-exposes one identity instead of all of them.
+exposes one identity instead of all of them. Cloud instance identity (AWS IID,
+GCP, Azure), Kubernetes service-account attestation, and HA server clusters are
+production options beyond this demo. Each is covered in the
+[SPIRE documentation](https://spiffe.io/docs/latest/deploying/).
 
 ## SVIDs
 
@@ -232,8 +238,9 @@ a workload.
 For Akeyless to trust a JWT-SVID it needs the public key that signed it. SPIRE
 publishes signing keys in a trust bundle. SPIRE lists JWT keys as base64
 SubjectPublicKeyInfo blobs; `bootstrap/spiffe-bundle-to-jwks.py` converts them
-into a standard JWKS, and the bootstrap stores that JWKS on the Akeyless auth
-method. Akeyless then verifies SVID signatures at authentication time.
+into a JWKS, short for JSON Web Key Set, which is a standard format for
+publishing public keys. The bootstrap stores that JWKS on the Akeyless auth
+method so Akeyless can verify SVID signatures at authentication time.
 
 ## The full picture
 

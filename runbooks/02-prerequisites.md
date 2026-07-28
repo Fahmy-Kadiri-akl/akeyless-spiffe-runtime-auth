@@ -87,16 +87,17 @@ associate it with an API-key auth method you control, and grant it:
 
 Then mint your `AKEYLESS_TOKEN` from an identity that holds this role.
 
-## Python, only if you inspect an SVID
+## Python
 
-You need Python 3 only if you run `bootstrap/verify-svid.sh` to decode and
-validate a JWT-SVID by hand. Signature checks also need the cryptography
-package:
+The bootstrap script uses Python to convert the SPIRE trust bundle into a JWKS,
+so Python 3 and the `cryptography` package are required for the demo, not
+optional:
 
 ```bash
 pip install cryptography
 ```
 
-The demo itself does not require Python.
+You also need them to run `bootstrap/verify-svid.sh` if you validate a JWT-SVID
+by hand.
 
 Now read [Quick start](03-quick-start.md).

@@ -1,6 +1,8 @@
 # Runtime Authentication to Akeyless with SPIFFE / SPIRE
 
-A runnable reference for authenticating an on-premises workload to Akeyless with a SPIRE-issued JWT-SVID and reading a secret. The workload holds no credential of any kind. On each run it fetches a fresh identity document from the SPIRE Workload API, trades it for a short-lived Akeyless token, and reads the secret. Nothing secret is stored on disk.
+A runnable reference for authenticating an on-premises workload to Akeyless with a SPIRE-issued JWT-SVID and reading a secret. The workload holds no credential of any kind. On each run it fetches a fresh identity document from the SPIRE Workload API, trades it for a short-lived Akeyless token, and reads the secret. No permanent credential sits on disk; the bootstrap uses
+a short-lived token that expires on its own. Akeyless is a secrets manager, like
+HashiCorp Vault or AWS Secrets Manager.
 
 This README is the landing page. It tells you what the repo is, gets you through a working demo, and points you at the [runbooks](runbooks/) for the full explanation. If any term below is new to you, read [Concepts you need first](runbooks/01-concepts.md) before the quick start. It defines every piece in plain language.
 
@@ -10,6 +12,13 @@ This README is the landing page. It tells you what the repo is, gets you through
 - Workloads prove who they are instead of carrying a credential.
 - Identities are short-lived and audience-bound, so they expire on their own and cannot be replayed elsewhere.
 - A workload's authority is scoped to a single secret path by a role bound to its identity.
+
+The concrete difference:
+
+| | Credential | Lifetime of a theft |
+|---|---|---|
+| Before | API key in `/etc/akeyless/key` | as long as the key is valid; no trace |
+| After | a JWT-SVID fetched per call | minutes, then the SVID is dead and a replay is logged |
 
 ## How it works
 
@@ -43,6 +52,11 @@ This repo is the SPIFFE/SPIRE counterpart to [akeyless-uid-runtime-auth](https:/
 | Operational dependencies | Akeyless only | SPIRE server and agent, plus Akeyless |
 | Best when | You want rotation without deploying SPIRE | You can run SPIRE and want zero on-disk credentials |
 
+If you are in a cloud, also consider cloud-native workload identity: AWS IAM
+Roles for Service Accounts (IRSA), GCP Workload Identity, or Azure Managed
+Identity. These bind a cloud identity to a workload without SPIRE, but only
+within that cloud. SPIFFE works across cloud, on-prem, and hybrid.
+
 ## Prerequisites
 
 - Docker with the Compose v2 plugin. Verify with `docker compose version`.
@@ -74,6 +88,8 @@ Edit `.env` and set two values:
 AKEYLESS_GATEWAY=https://your-account.akeyless.cloud/api/v2
 AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
 ```
+
+.env is gitignored, so the token never reaches the repo.
 
 Everything else in `.env` sits under `# ---- advanced ----` and already has defaults that work for the demo. Leave it as-is. What each value means, including what it would mean in production, is in the [Configuration reference](runbooks/05-configuration.md).
 

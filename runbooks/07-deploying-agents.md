@@ -93,9 +93,17 @@ on that host.
    workload attestor can see host-side workloads of any language, and it waits
    until the Workload API socket is up at `/tmp/spire-agent/public/api.sock`.
 
-3. On the server, register the workload against that agent with a selector that
-   matches the workload's identity. In production use a dedicated UID, a process
-   path, or a container label via the Docker workload attestor. See
+3. On the server, register the workload:
+
+   ```bash
+   spire-server entry create \
+     -parentID spiffe://<trust-domain>/agent/<host-name> \
+     -spiffeID spiffe://<trust-domain>/sa/<workload-name> \
+     -selector unix:uid:<dedicated-uid> \
+     -socketPath /tmp/spire-server/private/api.sock
+   ```
+
+   In production use a dedicated UID, a process path, or a container label. See
    [Workload selectors](06-production.md#workload-selectors).
 
 4. Point your application at the socket,

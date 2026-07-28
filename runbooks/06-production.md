@@ -31,8 +31,24 @@ flowchart LR
 ```
 
 Akeyless signs the trust-root CA, but JWT-SVIDs stay signed by SPIRE's own key,
-so the Akeyless flow is unchanged. This setup was validated end to end. The
-details that are easy to get wrong:
+so the Akeyless flow is unchanged. This setup was validated end to end.
+
+Create a PKI certificate issuer in Akeyless first, then configure the SPIRE
+UpstreamAuthority plugin in `server.conf`. The validated config uses these
+fields:
+
+```hcl
+UpstreamAuthority "akeyless_pki" {
+    plugin_data {
+        akeyless_gateway_url = "https://your-gateway/api/v2"
+        access_id            = "<p-...>"
+        access_key           = "<key>"
+        # custom_ca_bundle   = "/path/to/ca.pem"   # for an internal gateway
+    }
+}
+```
+
+The details that are easy to get wrong:
 
 - The plugin's `akeyless_gateway_url` must include the API path, for example
   `https://your-gateway/api/v2`. The auth endpoint is `/api/v2/auth`; without
@@ -42,6 +58,10 @@ details that are easy to get wrong:
 - The PKI issuer's `allowed-uri-sans` must include the trust-domain root itself,
   `spiffe://<trust-domain>`, not only the wildcard `spiffe://<trust-domain>/*`.
   SPIRE's CA carries the root URI SAN, and the wildcard alone does not match it.
+
+See the
+[Akeyless SPIRE Upstream Authority guide](https://docs.akeyless.io/docs/spire-upstream-authority)
+for the full setup, including PKI issuer creation.
 
 ## Bundle distribution
 
