@@ -218,3 +218,5 @@ the parent of the repo root, so the Dockerfile is not found.
 
 **Fix.** Retry. These resolve on their own. If a step depends on them, retry it
 a few times before assuming the repo is at fault.
+
+Next: [X.509-SVID mTLS](09-x509-mtls.md) (optional)

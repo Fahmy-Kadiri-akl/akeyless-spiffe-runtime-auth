@@ -144,4 +144,4 @@ on that host.
   selectors. The server is the single source of truth for who is allowed to be
   what.
 
-Now read [Troubleshooting](08-troubleshooting.md).
+Next: [Troubleshooting](08-troubleshooting.md).

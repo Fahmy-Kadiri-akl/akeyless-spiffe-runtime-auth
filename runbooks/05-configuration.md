@@ -167,6 +167,8 @@ curl -s -X POST "$GATEWAY/api/v2/get-secret-value"   -H "Content-Type: applicati
 The full endpoint reference is in the
 [Akeyless Postman collection](https://github.com/Fahmy-Kadiri-akl/akeyless-postman-collection).
 
+Next: [Production hardening](06-production.md)
+
 ## Notes
 
 - The host container's environment is fixed at creation time. If you change
