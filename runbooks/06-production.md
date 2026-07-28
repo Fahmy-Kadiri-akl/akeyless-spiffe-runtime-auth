@@ -207,4 +207,4 @@ Limits to plan around:
   that position. The defense is detection and revocation, which the short SVID
   lifetime and the audit log make possible.
 
-Next: [Deploying agents](06-deploying-agents.md)
+Next: [Deploying agents](07-deploying-agents.md)
