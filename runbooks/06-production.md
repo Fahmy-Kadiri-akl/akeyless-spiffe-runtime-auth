@@ -102,7 +102,7 @@ with an image or label selector.
 > [!WARNING]
 > Never set `insecure_bootstrap = true` against a production trust domain. The
 > demo sets it because the agent has no pre-shared server bundle on first
-> connection. An attacker who intercepts that first connection could substitute
+> connection to the server. An attacker who intercepts that first connection could substitute
 > their own server. In production, distribute the server bundle to the
 > agent out of band and remove the flag. The procedure depends on your
 > deployment; see the

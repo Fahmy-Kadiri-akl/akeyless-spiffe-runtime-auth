@@ -278,4 +278,10 @@ leaves no secret at rest: nothing for an attacker to copy and reuse. The worst
 case is a stolen token that expires in minutes, and a replay after expiry is
 rejected and recorded in the Akeyless audit log.
 
+The X.509-SVID path stores identity material in Akeyless, but that is the
+intended outcome, not a leaked credential. The stored cert and key are scoped to
+a specific workload's SPIFFE ID and rotated automatically by SPIRE before
+expiry. A consumer that reads them gets an identity it can use for mTLS, not a
+blanket credential to the account.
+
 Next: [Prerequisites](02-prerequisites.md)
