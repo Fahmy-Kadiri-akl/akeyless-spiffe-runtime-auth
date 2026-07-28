@@ -1,33 +1,24 @@
-# "host" container: spire-agent + the .NET reference app + the Go X.509 mTLS
-# demo pair, co-located in one container so unix workload attestation works
-# with no extra plumbing (mirrors an on-prem host where the agent and workloads
-# share a kernel). The app calls the Akeyless REST API over HTTP, so no Akeyless
-# CLI is needed.
+# "host" container: spire-agent + the Akeyless Secret Manager plugin + the .NET
+# reference app, co-located in one container so unix workload attestation works
+# with no extra plumbing. The app calls the Akeyless REST API over HTTP.
 
 # --- stage 1: pull the spire-agent binary out of the official image ---
 FROM ghcr.io/spiffe/spire-agent:1.15.2 AS spire
 
-# --- stage 2: build the Go X.509 mTLS demo pair (go-spiffe) ---
-FROM golang:1.25 AS mtls
-WORKDIR /src
-COPY mtls/go.mod mtls/go.sum ./
-RUN go mod download
-COPY mtls/ ./
-RUN CGO_ENABLED=0 go build -trimpath -o /out/server ./server && \
-    CGO_ENABLED=0 go build -trimpath -o /out/client ./client
+# --- stage 2: download the Akeyless Secret Manager plugin ---
+FROM alpine:3.19 AS plugins
+RUN apk add --no-cache curl && \
+    curl -fsSL -o /AkeylessSecretManager \
+      https://download.akeyless.io/Akeyless_Artifacts/Linux/spire/plugin/agent/spire-sm-amd64-linux-v0.0.6 && \
+    chmod +x /AkeylessSecretManager
 
-# --- stage 3: .NET 8 SDK + app + the mTLS binaries ---
+# --- stage 3: .NET 8 SDK + app + plugins ---
 FROM mcr.microsoft.com/dotnet/sdk:8.0
 
 # spire-agent binary (talks to the Workload API)
 COPY --from=spire /opt/spire/bin/spire-agent /usr/local/bin/spire-agent
-# X.509 mTLS demo binaries (go-spiffe). run-mtls.sh runs each under a distinct
-# UID so SPIRE can attest them as separate workloads.
-COPY --from=mtls /out/server /app/mtls/server
-COPY --from=mtls /out/client /app/mtls/client
-# In-container demo orchestrator (run via mtls/run-mtls.sh on the host).
-COPY mtls/demo.sh /app/mtls/demo.sh
-RUN chmod +x /app/mtls/demo.sh
+# Akeyless Secret Manager plugin (stores X.509-SVIDs in Akeyless)
+COPY --from=plugins /AkeylessSecretManager /opt/spire/AkeylessSecretManager
 
 WORKDIR /app
 COPY app/SecretConsumer.csproj ./

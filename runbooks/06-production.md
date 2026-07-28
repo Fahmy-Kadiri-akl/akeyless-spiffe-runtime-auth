@@ -52,6 +52,14 @@ matching `access_type`. See the
 [Akeyless SPIRE Upstream Authority guide](https://docs.akeyless.io/docs/spire-upstream-authority)
 for the full field reference.
 
+Akeyless provides three SPIRE integrations:
+
+| Integration | What it does | This repo uses it |
+|---|---|---|
+| [Upstream Authority](https://docs.akeyless.io/docs/spire-upstream-authority) | Signs the trust root via Akeyless PKI; manages JWT-SVID key rotation | Yes |
+| [Secret Manager](https://docs.akeyless.io/docs/spire-secret-manager) | Stores X.509-SVIDs in Akeyless automatically | Yes |
+| [Upstream Authority SM](https://docs.akeyless.io/docs/spire-upstream-authority-sm) | Sources the CA from a stored certificate item; no JWT-SVID support | No (we need JWT-SVID) |
+
 The details that are easy to get wrong:
 
 - The plugin's `akeyless_gateway_url` must include the API path, for example

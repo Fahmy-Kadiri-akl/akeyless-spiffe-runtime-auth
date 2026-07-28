@@ -21,6 +21,9 @@ set -a; . ./.env; set +a
 : "${UPSTREAM_ACCESS_ID:?UPSTREAM_ACCESS_ID is required. Set the upstream authority access id in .env.}"
 : "${UPSTREAM_ACCESS_KEY:=}"
 UPSTREAM_CERT_ISSUER="${UPSTREAM_CERT_ISSUER:-/spiffe/demo/pki}"
+: "${SVID_STORE_ACCESS_ID:?SVID_STORE_ACCESS_ID is required. Set the Secret Manager access id in .env.}"
+: "${SVID_STORE_ACCESS_KEY:=}"
+SVID_STORE_TARGET_FOLDER="${SVID_STORE_TARGET_FOLDER:-/spiffe/demo/svid}"
 GATEWAY="${AKEYLESS_GATEWAY%/}"
 
 mkdir -p "$ROOT/spire/.data"
@@ -51,7 +54,12 @@ sed -e "s|example.org|$SPIFFE_TRUST_DOMAIN|g" \
     -e "s|@@UPSTREAM_ACCESS_KEY@@|$UPSTREAM_ACCESS_KEY|" \
     -e "s|@@UPSTREAM_CERT_ISSUER@@|$UPSTREAM_CERT_ISSUER|" \
     "$ROOT/spire/server.conf" > "$ROOT/spire/.data/server.conf"
-sed "s|example.org|$SPIFFE_TRUST_DOMAIN|g" "$ROOT/spire/agent.conf" > "$ROOT/spire/.data/agent.conf"
+sed -e "s|example.org|$SPIFFE_TRUST_DOMAIN|g" \
+    -e "s|@@GATEWAY_FULL@@|$GATEWAY|" \
+    -e "s|@@SVID_STORE_ACCESS_ID@@|$SVID_STORE_ACCESS_ID|" \
+    -e "s|@@SVID_STORE_ACCESS_KEY@@|$SVID_STORE_ACCESS_KEY|" \
+    -e "s|@@SVID_STORE_TARGET_FOLDER@@|$SVID_STORE_TARGET_FOLDER|" \
+    "$ROOT/spire/agent.conf" > "$ROOT/spire/.data/agent.conf"
 
 PARENT="spiffe://${SPIFFE_TRUST_DOMAIN}/agent/host"
 DC="docker compose --project-directory $ROOT -f spire/docker-compose.yml"
@@ -110,6 +118,20 @@ done
 
 echo "==> Registering the workload ..."
 "$SCRIPT_DIR/register-workload.sh"
+
+echo "==> Registering the X.509-SVID workload with -storeSVID ..."
+X509_SPIFFE_ID="spiffe://${SPIFFE_TRUST_DOMAIN}/sa/x509-workload"
+if $DC exec -T spire-server /opt/spire/bin/spire-server entry show \
+     -socketPath /tmp/spire-server/private/api.sock 2>/dev/null | grep -q "$X509_SPIFFE_ID"; then
+  echo "    (X.509 workload already registered)"
+else
+  $DC exec -T spire-server /opt/spire/bin/spire-server entry create \
+    -parentID "spiffe://${SPIFFE_TRUST_DOMAIN}/agent/host" \
+    -spiffeID "$X509_SPIFFE_ID" \
+    -selector "akeyless_secretsmanager:secretname:x509-workload-svid" \
+    -storeSVID \
+    -socketPath /tmp/spire-server/private/api.sock
+fi
 
 echo "==> Waiting for the Workload API to issue SVIDs ..."
 for i in $(seq 1 30); do
