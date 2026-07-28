@@ -154,6 +154,19 @@ Akeyless REST API directly with `HttpClient`:
 2. `POST {gateway}/api/v2/get-secret-value` with
    `{"names":[<secret-path>],"token":<token>}` to read the secret.
 
+The same calls in shell, for any language:
+
+```bash
+# Fetch the SVID from the Workload API
+SVID=$(spire-agent api fetch jwt -audience akeyless   -socketPath /tmp/spire-agent/public/api.sock -output json | jq -r '.[0].svids[0].svid')
+
+# 1. Trade the SVID for an Akeyless token
+TOKEN=$(curl -s -X POST "$GATEWAY/api/v2/auth"   -H "Content-Type: application/json"   -d "{"access-type":"jwt","access-id":"$ACCESS_ID","jwt":"$SVID"}"   | jq -r .token)
+
+# 2. Read the secret
+curl -s -X POST "$GATEWAY/api/v2/get-secret-value"   -H "Content-Type: application/json"   -d "{"names":["$SECRET_PATH"],"token":"$TOKEN"}"
+```
+
 The full endpoint reference is in the
 [Akeyless Postman collection](https://github.com/Fahmy-Kadiri-akl/akeyless-postman-collection).
 
