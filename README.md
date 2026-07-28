@@ -158,7 +158,7 @@ If a step fails, find the matching error in [Troubleshooting](runbooks/08-troubl
 | Move from the demo to production, including per-environment trust domains | [Production hardening](runbooks/06-production.md) |
 | Run an agent for your own app, host, or language | [Deploying agents](runbooks/07-deploying-agents.md) |
 | Diagnose a failure | [Troubleshooting](runbooks/08-troubleshooting.md) |
-| See X.509-SVID mTLS between two workloads (optional) | [X.509 mTLS demo](runbooks/09-x509-mtls.md) |
+| See X.509-SVIDs stored in Akeyless via Secret Manager | [X.509-SVID guide](runbooks/09-x509-svid-store.md) |
 | Monitor a production deployment | [Operations](runbooks/10-operations.md) |
 | Move from an API key to SPIFFE identity | [Migration playbook](runbooks/11-migration.md) |
 
@@ -175,7 +175,7 @@ spire/                         dev SPIRE topology and orchestration
   docker-compose.yml           spire-server and host services
   server.conf                  trust domain, UpstreamAuthority config, lifetimes
   agent.conf                   Workload API socket, bootstrap
-  Dockerfile.host              .NET 8 app + spire-agent + the Go X.509 mTLS demo pair
+  Dockerfile.host              .NET 8 app + spire-agent + the Akeyless Secret Manager plugin
   up.sh / down.sh              start and tear down the stack
   register-workload.sh         register the workload by Unix UID
   spire.env.example            template for .env
@@ -190,10 +190,6 @@ agent/                         portable, app-agnostic SPIRE agent
 app/                           .NET 8 reference workload
   Program.cs                   fetch SVID, authenticate, read secret
   SecretConsumer.csproj
-mtls/                          X.509-SVID mTLS demo (Go + go-spiffe)
-  server/ client/              mTLS pair that proves two workloads to each other
-  demo.sh                      in-container demo runner
-  run-mtls.sh                  host-side entry point: register workloads and run
 runbooks/                      beginner guides: concepts, setup, production, troubleshooting
 ```
 

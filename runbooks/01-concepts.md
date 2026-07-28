@@ -186,12 +186,12 @@ of its SPIFFE ID. SPIRE supports two forms.
 | SVID | Form | Used for | In this repo |
 |---|---|---|---|
 | JWT-SVID | Signed JSON Web Token | Bearer authentication to a service such as Akeyless | Yes. The .NET app trades one for an Akeyless token. |
-| X.509-SVID | Certificate plus private key | Mutual TLS between two workloads | Yes, in the optional [mTLS demo](09-x509-mtls.md). |
+| X.509-SVID | Certificate plus private key | Identity material stored in Akeyless via the Secret Manager plugin | Yes, in [guide 09](09-x509-svid-store.md). |
 
 A JWT-SVID is short-lived, measured in minutes, and issued fresh on every run.
 Akeyless validates it against a public key set, which is why the secret-reading
 path uses JWT-SVIDs. X.509-SVIDs serve a different problem, workload-to-workload
-mTLS, shown separately in guide 09.
+the X.509-SVID path, shown in [guide 09](09-x509-svid-store.md).
 
 ## Audience
 
