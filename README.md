@@ -172,7 +172,7 @@ A compromised host is not stopped in real time: an attacker running code as the 
 ```
 spire/                         dev SPIRE topology and orchestration
   docker-compose.yml           spire-server and host services
-  server.conf                  dev trust domain, self-signed CA, lifetimes
+  server.conf                  trust domain, UpstreamAuthority config, lifetimes
   agent.conf                   Workload API socket, bootstrap
   Dockerfile.host              .NET 8 app + spire-agent + the Go X.509 mTLS demo pair
   up.sh / down.sh              start and tear down the stack
