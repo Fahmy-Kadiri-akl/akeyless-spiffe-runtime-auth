@@ -85,7 +85,10 @@ Paths in your Akeyless account that the bootstrap creates:
 | `AKEYLESS_AUTH_METHOD` | `/spiffe/demo/auth` | The OAuth2/JWT auth method that validates the SVID. |
 | `AKEYLESS_ROLE` | `/spiffe/demo/reader` | The role bound to the workload's SPIFFE ID, granting read on the secret folder. |
 | `AKEYLESS_SECRET` | `/spiffe/demo/db-password` | The demo secret path. The role rule is derived from this path's folder. |
-| `SPIRE_BUNDLE_ENDPOINT` | empty | Optional public JWKS URL. When set, Akeyless fetches the bundle at runtime instead of using the inline JWKS. |
+
+`SPIRE_BUNDLE_ENDPOINT` is not an Akeyless object; it is the public JWKS URL
+SPIRE exposes so Akeyless can track key rotation. See
+[Lifetimes](#lifetimes) and [Bundle distribution](05-production.md#bundle-distribution).
 
 Namespace these per environment so each bootstrap touches only its own objects:
 
@@ -93,6 +96,8 @@ Namespace these per environment so each bootstrap touches only its own objects:
 |---|---|---|---|
 | prod | `/spiffe/prod/auth` | `/spiffe/prod/reader` | `/spiffe/prod/db-password` |
 | staging | `/spiffe/staging/auth` | `/spiffe/staging/reader` | `/spiffe/staging/db-password` |
+| qa | `/spiffe/qa/auth` | `/spiffe/qa/reader` | `/spiffe/qa/db-password` |
+| dev | `/spiffe/dev/auth` | `/spiffe/dev/reader` | `/spiffe/dev/db-password` |
 
 See [Required Akeyless permissions](02-prerequisites.md#required-akeyless-permissions).
 

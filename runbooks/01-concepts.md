@@ -45,12 +45,14 @@ spiffe://example.org/ns/default/sa/secret-consumer
 ```
 
 The host part is the **trust domain**, the boundary of trust. The path is
-free-form; the spec mandates only the scheme and the trust domain. This repo
-follows the Kubernetes convention `/ns/<namespace>/sa/<name>`, where `/sa/` is
-short for service account. You may use any path, such as `/service/billing`.
-The path identifies the workload, and because Akeyless matches the full SPIFFE
-ID, two workloads in the same domain get different access by using different
-paths. The workload presents this ID; Akeyless maps it to a role.
+free-form; the spec mandates only the scheme and the trust domain. This guide
+uses `/sa/<name>` for workload paths, where `/sa/` is short for service account,
+and prefixes `/ns/<namespace>/` when a namespace is useful. The demo path
+`/ns/default/sa/secret-consumer` shows the full form; the production examples
+use the shorter `/sa/<name>` form. Use whatever path you like. Because Akeyless
+matches the full SPIFFE ID, two workloads in the same domain get different
+access by using different paths. The workload presents this ID; Akeyless maps
+it to a role.
 
 ## The trust domain
 
@@ -137,8 +139,10 @@ administrator identity, separate from the workloads. See
 split between provisioning and reading.
 
 Two units that must not accept each other's identities get separate domains.
-The rare case where environments or units genuinely need to honor each other's
-identities uses SPIFFE federation, never a shared trust domain.
+The rare case where two domains genuinely need to honor each other's identities
+uses SPIFFE federation, not a shared trust domain. Federation lets each domain
+publish its bundle to the other, so a workload in one can verify an SVID issued
+by the other, without the two domains sharing a root.
 
 ## SPIRE: server and agent
 
