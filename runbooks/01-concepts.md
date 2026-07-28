@@ -74,6 +74,16 @@ identities. Akeyless validates a JWT-SVID by checking its signature against the
 public key in the bundle. The bundle is published as a **JWKS** (JSON Web Key
 Set), which is just a JSON document of public keys.
 
+## How the SVID becomes an Akeyless token
+
+- SPIRE signs JWT-SVIDs with an EC P-256 key and publishes the public key in
+  the trust bundle.
+- The bundle lists JWT keys as base64 SPKI blobs.
+  `bootstrap/spiffe-bundle-to-jwks.py` converts them into a standard JWKS.
+- The bootstrap stores that JWKS on the Akeyless auth method. On `auth`,
+  Akeyless validates the SVID signature against the JWKS and matches the `sub`
+  claim to the role.
+
 ## How a workload gets a secret, end to end
 
 1. The agent attests the workload and the server issues it a JWT-SVID.

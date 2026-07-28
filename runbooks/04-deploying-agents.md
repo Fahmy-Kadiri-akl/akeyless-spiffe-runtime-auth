@@ -32,8 +32,8 @@ Akeyless independently.
 The repo publishes a pre-built, app-agnostic agent image to GHCR at
 `ghcr.io/fahmy-kadiri-akl/akeyless-spiffe-runtime-auth/agent`. It runs only the
 SPIRE agent and serves the Workload API, so any application in any language can
-use it for identity. It runs only the
-SPIRE agent, so it is fully decoupled from whatever you run.
+use it for identity. Because it carries no application code, it stays fully
+decoupled from whatever you run.
 
 ## Deploy on a workload host
 

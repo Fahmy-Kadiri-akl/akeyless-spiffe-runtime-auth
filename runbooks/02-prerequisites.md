@@ -44,8 +44,8 @@ back to a missed prerequisite here.
   ```
 
   Copy the printed `Token: t-...` value into `AKEYLESS_TOKEN` in `.env`. The
-  token expires on its own. It needs the capabilities listed under "Required
-  Akeyless permissions" in the repo README.
+  token expires on its own. It needs the capabilities listed under
+  "Required Akeyless permissions" below.
 
 ### Verify the token works
 
@@ -55,6 +55,22 @@ akeyless get-auth-method --name /does-not-matter --token <your-t-token>
 
 Expected: an error about the method not existing, not an auth error. An auth
 error means the token is invalid or expired; re-mint it.
+
+## Required Akeyless permissions
+
+Two identities are involved: the **bootstrap**, an administrative identity used
+once, and the **workload**, the runtime identity the bootstrap creates.
+Capabilities are `read`, `create`, `update`, `delete`, `list`, and `deny`. The
+rule types relevant here are `item-rule`, `auth-method-rule`, and `role-rule`.
+
+| Identity | What it needs |
+|---|---|
+| Workload | `item-rule` granting `read` and `list` on the secret folder, bound to its SPIFFE ID. Nothing else. |
+| Bootstrap | `auth-method-rule` `create`, `update`, `delete`, `read`; `role-rule` `create`, `update`; `item-rule` `create` on the configured paths. A full admin also works. |
+
+Akeyless does not let a role grant a capability its caller lacks, so the
+bootstrap must also hold `read` and `list` on the secret folder, because those
+are what it grants to the workload.
 
 ## Python (optional)
 
