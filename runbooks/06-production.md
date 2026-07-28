@@ -95,9 +95,11 @@ with an image or label selector.
 > Never set `insecure_bootstrap = true` against a production trust domain. The
 > demo sets it because the agent has no pre-shared server bundle on first
 > connection. An attacker who intercepts that first connection could substitute
-> their own server. In production, distribute the
-> server bundle to the agent out of band and remove the flag, so the agent
-> authenticates the server from the start.
+> their own server. In production, distribute the server bundle to the
+> agent out of band and remove the flag. The procedure depends on your
+> deployment; see the
+> [SPIRE agent bootstrap guide](https://spiffe.io/docs/latest/deploying/install-agents/)
+> for VM, Kubernetes, and cloud-specific methods.
 
 ## Environments and trust domains
 

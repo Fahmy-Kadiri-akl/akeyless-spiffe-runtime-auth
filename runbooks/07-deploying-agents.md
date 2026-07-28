@@ -117,7 +117,19 @@ config file on the host. `SPIRE_SERVER_ADDRESS`, `SPIFFE_TRUST_DOMAIN`, and
 attests the node to the server once. After that, the agent persists its own
 SVID and reuses it across restarts.
 
-`agent/Dockerfile.agent` and `agent/agent-entrypoint.sh` define the image. It is rebuilt whenever the agent source changes.
+`agent/Dockerfile.agent` and `agent/agent-entrypoint.sh` define the image. It is
+rebuilt whenever the agent source changes.
+
+The `spire-server` CLI commands in steps 1 and 3 run on the host where the
+spire-server container is running. If you used this repo's `./spire/up.sh`, the
+server runs in Docker and you reach the CLI through exec:
+
+```bash
+docker compose --project-directory . -f spire/docker-compose.yml   exec spire-server /opt/spire/bin/spire-server token generate   -spiffeID spiffe://<trust-domain>/agent/<host-name>   -socketPath /tmp/spire-server/private/api.sock
+```
+
+For a production server running as a native binary, run `spire-server` directly
+on that host.
 
 ## Notes for production
 
