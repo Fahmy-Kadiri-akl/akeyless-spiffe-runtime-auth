@@ -101,17 +101,12 @@ cp spire/spire.env.example .env
 
 Edit `.env` and set four values:
 
-```
-AKEYLESS_GATEWAY=https://your-account.akeyless.cloud
-AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
-ACCESS_ID=<p-...>
-ACCESS_KEY=<key>
-```
-
-`AKEYLESS_TOKEN` is a short-lived bootstrap token (expires on its own).
-`ACCESS_ID` and `ACCESS_KEY` authenticate both SPIRE plugins
-(UpstreamAuthority and Secret Manager);
-[create them first](runbooks/02-prerequisites.md#creating-the-plugin-credentials).
+| Value | What it is | Where it comes from |
+|---|---|---|
+| `AKEYLESS_GATEWAY` | your Akeyless gateway base URL (no `/api/v2`) | your Akeyless account |
+| `AKEYLESS_TOKEN` | a short-lived admin token (`t-...`) for the one-time bootstrap | created from your normal auth method; expires on its own |
+| `ACCESS_ID` | an access ID (`p-...`) that authenticates both SPIRE plugins to Akeyless | [create it first](runbooks/02-prerequisites.md#creating-the-plugin-credentials) |
+| `ACCESS_KEY` | the matching key for `ACCESS_ID` (omit for cloud identity) | created alongside the access ID |
 
 `.env` is gitignored, so none of these reach the repo.
 

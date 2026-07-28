@@ -26,12 +26,19 @@ material to the `SVID_STORE_TARGET_FOLDER` path.
 
 ## The two SVID paths compared
 
-| | JWT-SVID (workload 1) | X.509-SVID (workload 2) |
+| | JWT-SVID | X.509-SVID |
 |---|---|---|
-| Who fetches | the workload, from the Workload API | SPIRE, pushed automatically |
-| Where it goes | in memory, used for the call, discarded | stored in Akeyless as a secret |
-| What the workload does | trades the SVID for an Akeyless token, reads a secret | nothing; the plugin handles everything |
-| Best for | authenticating to Akeyless to read secrets | distributing identity material to consumers |
+| Direction | workload authenticates TO a service | identity material is stored FOR consumers |
+| Who acts | the workload fetches the SVID and uses it | SPIRE pushes the SVID; the plugin stores it |
+| Where the SVID lives | in memory for the call, then discarded | stored in Akeyless as a secret |
+| What the workload does | trades SVID for a token, reads a secret | nothing; the plugin handles everything |
+| Use when | the workload authenticates to Akeyless or another service | another system needs the workload cert and key |
+| Example | a service reading a database password from Akeyless | a Kubernetes sidecar needing the workload mTLS certificate |
+
+Both run simultaneously in this repo. The workload type is set by how it is
+registered with SPIRE and which plugins are configured, not by the application
+language. See [Concepts: Which SVID type to use](01-concepts.md#which-svid-type-to-use)
+for the decision guide.
 
 ## Verify the X.509-SVID was stored
 
