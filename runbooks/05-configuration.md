@@ -45,7 +45,7 @@ each one:
 | Lifecycle | Default | Renewal |
 |---|---|---|
 | JWT-SVID | 5 minutes | Fetched fresh on every run; never stored or rotated. |
-| X.509-SVID | 1 hour | Auto-renewed by spire-agent before expiry. Used by the mTLS demo. |
+| X.509-SVID | 1 hour | Auto-renewed by spire-agent before expiry. Stored in Akeyless via Secret Manager. |
 | Agent SVID | 1 hour | Auto-renewed by spire-agent before expiry. |
 | Trust-root CA and JWT signing key | 24 hours | Rotated by spire-server on this cadence. |
 

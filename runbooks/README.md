@@ -3,7 +3,7 @@
 ## Reading order
 
 The runbooks are numbered and follow a learning path. First-time setup runs
-straight through 01 to 05. Guide 09 is an optional demo of X.509-SVID mTLS. If
+straight through 01 to 05. Guide 09 covers X.509-SVID via Secret Manager. If
 something breaks, jump to 08.
 
 | # | Guide | When you need it |
