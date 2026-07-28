@@ -19,7 +19,8 @@ they break authentication.
 ### SPIRE server
 
 ```bash
-spire-server healthcheck -socketPath /tmp/spire-server/private/api.sock
+docker compose --project-directory . -f spire/docker-compose.yml \
+  exec spire-server /opt/spire/bin/spire-server healthcheck -socketPath /tmp/spire-server/private/api.sock
 ```
 
 A healthy server prints `Server is healthy.` If it fails, check the server logs
@@ -28,7 +29,8 @@ and confirm the data volume is writable.
 ### SPIRE agent
 
 ```bash
-spire-agent healthcheck -socketPath /tmp/spire-agent/public/api.sock
+docker compose --project-directory . -f spire/docker-compose.yml \
+  exec host spire-agent healthcheck -socketPath /tmp/spire-agent/public/api.sock
 ```
 
 A healthy agent is connected to the server and serving the Workload API. If it
@@ -38,7 +40,8 @@ unreachable.
 ### End-to-end SVID fetch
 
 ```bash
-spire-agent api fetch jwt -audience akeyless \
+docker compose --project-directory . -f spire/docker-compose.yml \
+  exec host spire-agent api fetch jwt -audience akeyless \
   -socketPath /tmp/spire-agent/public/api.sock
 ```
 

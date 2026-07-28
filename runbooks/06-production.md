@@ -17,7 +17,7 @@ Each concern has a demo form and a production form.
 
 The UpstreamAuthority plugin signs and rotates the trust root through Akeyless
 PKI. The demo creates the PKI issuer and configures the plugin automatically via
-`UPSTREAM_ACCESS_ID`, `UPSTREAM_ACCESS_KEY`, and `UPSTREAM_CERT_ISSUER` in
+`ACCESS_ID`, `ACCESS_KEY`, and `UPSTREAM_CERT_ISSUER` in
 `.env`.
 
 ```mermaid

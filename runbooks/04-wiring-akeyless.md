@@ -98,6 +98,9 @@ curl -s -X POST "$GATEWAY/api/v2/delete-role" \
 curl -s -X POST "$GATEWAY/api/v2/delete-auth-method" \
   -H "Content-Type: application/json" \
   -d "{\"name\":\"$AKEYLESS_AUTH_METHOD\",\"token\":\"$T\"}"
+curl -s -X POST "$GATEWAY/api/v2/delete-item" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"$SVID_STORE_TARGET_FOLDER\",\"token\":\"$T\"}"
 ```
 
 You can also remove them through the Akeyless console.
