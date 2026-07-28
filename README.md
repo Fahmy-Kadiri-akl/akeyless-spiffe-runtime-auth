@@ -158,6 +158,8 @@ If a step fails, find the matching error in [Troubleshooting](runbooks/08-troubl
 | Run an agent for your own app, host, or language | [Deploying agents](runbooks/07-deploying-agents.md) |
 | Diagnose a failure | [Troubleshooting](runbooks/08-troubleshooting.md) |
 | See X.509-SVID mTLS between two workloads (optional) | [X.509 mTLS demo](runbooks/09-x509-mtls.md) |
+| Monitor a production deployment | [Operations](runbooks/10-operations.md) |
+| Move from an API key to SPIFFE identity | [Migration playbook](runbooks/11-migration.md) |
 
 ## Security model
 
