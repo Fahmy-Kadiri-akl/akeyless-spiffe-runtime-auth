@@ -130,7 +130,7 @@ If a step fails, find the matching error in [Troubleshooting](runbooks/07-troubl
 | Verify your environment and permissions | [Prerequisites](runbooks/02-prerequisites.md) |
 | The quick start with full explanations | [Quick start runbook](runbooks/03-quick-start.md) |
 | Understand every value in `.env`, including TTLs and production implications | [Configuration reference](runbooks/04-configuration.md) |
-| Move from the demo to production | [Production hardening](runbooks/05-production.md) |
+| Move from the demo to production, including per-environment trust domains | [Production hardening](runbooks/05-production.md) |
 | Run an agent for your own app, host, or language | [Deploying agents](runbooks/06-deploying-agents.md) |
 | Diagnose a failure | [Troubleshooting](runbooks/07-troubleshooting.md) |
 | See X.509-SVID mTLS between two workloads (optional) | [X.509 mTLS demo](runbooks/08-x509-mtls.md) |
