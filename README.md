@@ -1,8 +1,10 @@
 # Runtime Authentication to Akeyless with SPIFFE / SPIRE
 
-A runnable reference for authenticating a workload to Akeyless with a SPIRE-issued JWT-SVID and reading a secret. The workload holds no credential of any kind. On each run it fetches a fresh identity document from the SPIRE Workload API, trades it for a short-lived Akeyless token, and reads the secret. The workload has no permanent credential on disk; the bootstrap uses
-a short-lived token that expires on its own. Akeyless is a secrets manager, like
-HashiCorp Vault or AWS Secrets Manager.
+A runnable reference for workload identity with SPIFFE and Akeyless. Demonstrates
+two SVID paths: a JWT-SVID workload that reads a secret from Akeyless, and an
+X.509-SVID workload whose identity material is stored in Akeyless automatically
+via the Secret Manager plugin. The trust root is signed by Akeyless PKI. Akeyless
+is a secrets manager, like HashiCorp Vault or AWS Secrets Manager.
 
 New to SPIFFE or SPIRE? Read [Concepts](runbooks/01-concepts.md) first.
 
