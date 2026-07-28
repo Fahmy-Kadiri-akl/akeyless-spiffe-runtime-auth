@@ -27,9 +27,12 @@ curl -fsSL -o akeyless https://akeyless-cli.s3.us-east-2.amazonaws.com/cli/lates
 chmod +x akeyless
 ```
 
-The CLI self-installs into `~/.akeyless/bin` on first run. You use this CLI
-only to mint a token and run the bootstrap. The CLI inside the container is for
-the app at runtime, and you do not manage it.
+The CLI self-installs into `~/.akeyless/bin` on first run. You use it on the
+admin host for two things: minting the short-lived bootstrap token, and running
+`bootstrap/setup-akeyless.sh`, which calls the CLI to create the auth method,
+role, and secret. The reference app does not use it. The app reaches Akeyless
+through the REST API over HTTPS, so there is no Akeyless CLI in the container
+and none needed at runtime.
 
 ## Your Akeyless gateway URL
 
