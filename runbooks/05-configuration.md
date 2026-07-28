@@ -8,7 +8,7 @@ defaults. Each table below says what a value is and what it means in production.
 
 | Variable | What it is |
 |---|---|
-| `AKEYLESS_GATEWAY` | Gateway the app calls to trade the SVID for a token and read secrets. Must include `/api/v2`, for example `https://your-account.akeyless.cloud/api/v2`. |
+| `AKEYLESS_GATEWAY` | Gateway base URL the app calls. Do not include `/api/v2`; the code appends it. Example: `https://your-account.akeyless.cloud`. |
 | `AKEYLESS_TOKEN` | Short-lived token, starting with `t-`, that authenticates the bootstrap. The only bootstrap credential; a missing token is a hard failure. Mint one however you authenticate to Akeyless and let it expire. |
 
 `AKEYLESS_ACCESS_ID` is the auth method's access id. You do not set it. The

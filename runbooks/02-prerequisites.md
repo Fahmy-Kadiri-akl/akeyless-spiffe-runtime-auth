@@ -19,11 +19,10 @@ the SPIRE server and agent images and the pre-built host image from GHCR.
 
 ## Your Akeyless gateway URL
 
-You need your account's API gateway URL, reachable from the host that runs the
-app. It looks like `https://your-account.akeyless.cloud/api/v2`, or an internal
-gateway URL if you run one. Note that it must include the `/api/v2` path,
-because the auth endpoint is `/api/v2/auth`. A URL without that path lands on
-the wrong endpoint and fails with a confusing parameter error.
+You need your account's API gateway base URL, reachable from the host that runs
+the app. It looks like `https://your-account.akeyless.cloud`, or an internal
+gateway URL if you run one. Do not include the `/api/v2` path; the code appends
+it automatically.
 
 ## A short-lived token for the bootstrap
 

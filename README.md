@@ -61,7 +61,7 @@ within that cloud. SPIFFE works across cloud, on-prem, and hybrid.
 
 - Docker with the Compose v2 plugin. Verify with `docker compose version`.
 - A short-lived Akeyless token starting with `t-`, with permission to create auth methods, roles, and secrets.
-- Your Akeyless API gateway URL, reachable from the host running the app.
+- Your Akeyless API gateway base URL (without `/api/v2`), reachable from the host running the app.
 
 For token minting and the exact capabilities the token needs, see [Prerequisites](runbooks/02-prerequisites.md).
 
@@ -85,7 +85,7 @@ cp spire/spire.env.example .env
 Edit `.env` and set two values:
 
 ```
-AKEYLESS_GATEWAY=https://your-account.akeyless.cloud/api/v2
+AKEYLESS_GATEWAY=https://your-account.akeyless.cloud
 AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
 ```
 

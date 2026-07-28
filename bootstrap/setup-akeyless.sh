@@ -50,7 +50,7 @@ api() {
 api_quiet() {
   curl -sS -X POST "$GATEWAY/api/v2/$1" \
     -H "Content-Type: application/json" \
-    -d "$2" 2>/dev/null || true
+    -d "$2" >/dev/null 2>&1 || true
 }
 
 mkdir -p "$(dirname "$RAW_BUNDLE")"
@@ -115,9 +115,9 @@ echo "[setup] associating role with auth method ..."
 api_quiet assoc-role-am "$(jq -cn \
   --arg rn "$ROLE" \
   --arg am "$AUTH_METHOD" \
-  --arg sc "sub=$WORKLOAD_SPIFFE_ID" \
+  --arg sid "$WORKLOAD_SPIFFE_ID" \
   --arg t  "$AKEYLESS_TOKEN" \
-  '{"role-name":$rn, "am-name":$am, "case-sensitive":"sub", "sub-claims":$sc, token:$t}')"
+  '{"role-name":$rn, "am-name":$am, "case-sensitive":"sub", "sub-claims":{"sub":$sid}, token:$t}')"
 
 echo "[setup] granting read + list on $RULE_PATH ..."
 api set-role-rule "$(jq -cn \
