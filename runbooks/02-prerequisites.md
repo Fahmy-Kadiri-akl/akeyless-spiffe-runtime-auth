@@ -11,7 +11,7 @@ back to a missed prerequisite here.
   docker compose version
   ```
 
-  Expected: a version line like `Docker Compose version v2.x`. If you see
+  This prints a version line like `Docker Compose version v2.x`. If you see
   `unknown command: docker compose`, install the plugin.
 
 - [ ] Docker can reach the internet to pull images (`ghcr.io` for the SPIRE
@@ -53,8 +53,8 @@ back to a missed prerequisite here.
 akeyless get-auth-method --name /does-not-matter --token <your-t-token>
 ```
 
-Expected: an error about the method not existing, not an auth error. An auth
-error means the token is invalid or expired; re-mint it.
+A valid token prints an error about the method not existing. An auth error
+means the token is invalid or expired; re-mint it.
 
 ## Required Akeyless permissions
 

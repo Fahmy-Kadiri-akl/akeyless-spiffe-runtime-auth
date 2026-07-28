@@ -84,7 +84,7 @@ AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
 ./spire/up.sh
 ```
 
-Expected: the script ends with `==> SPIRE is up.`
+The script ends with `==> SPIRE is up.`
 
 ### 4. Wire Akeyless
 
@@ -92,7 +92,7 @@ Expected: the script ends with `==> SPIRE is up.`
 ./bootstrap/setup-akeyless.sh
 ```
 
-Expected: the script ends with `[setup] done.`
+The script ends with `[setup] done.`
 
 ### 5. Read the secret
 
@@ -101,7 +101,7 @@ docker compose --project-directory . -f spire/docker-compose.yml exec host \
   dotnet /app/bin/Release/net8.0/secret-consumer.dll
 ```
 
-Expected output:
+The app prints:
 
 ```
 [1/3] Fetching JWT-SVID (audience=akeyless) from /tmp/spire-agent/public/api.sock ...
