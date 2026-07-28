@@ -166,6 +166,47 @@ Put the `access_id` and `access_key` from step 1 into `.env` as
 auth method with the matching `access_type` instead of api-key, and set
 `UPSTREAM_ACCESS_KEY` to empty.
 
+## Creating the Secret Manager credentials
+
+The Secret Manager plugin runs on the agent and stores X.509-SVIDs in Akeyless.
+It needs its own auth method with `create`, `update`, and `list` on the target
+folder.
+
+The access-type choice and risk-management section above apply identically.
+Replace `<admin-token>` with a token that has admin or equivalent permissions.
+
+```bash
+GATEWAY=https://your-account.akeyless.cloud
+
+# 1. Create an API-key auth method for the plugin
+RESP=$(curl -s -X POST "$GATEWAY/api/v2/create-auth-method-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"/spiffe/demo/svid-store-auth","token":"<admin-token>"}')
+SVID_STORE_ACCESS_ID=$(echo "$RESP" | jq -r .access_id)
+SVID_STORE_ACCESS_KEY=$(echo "$RESP" | jq -r .access_key)
+echo "access_id=$SVID_STORE_ACCESS_ID"
+
+# 2. Create a role for the plugin
+curl -s -X POST "$GATEWAY/api/v2/create-role" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"/spiffe/demo/svid-store-role","token":"<admin-token>"}'
+
+# 3. Grant create + update + list on the SVID target folder
+curl -s -X POST "$GATEWAY/api/v2/set-role-rule" \
+  -H "Content-Type: application/json" \
+  -d '{"role-name":"/spiffe/demo/svid-store-role","path":"/spiffe/demo/svid","capability":["create","update","list"],"token":"<admin-token>"}'
+
+# 4. Associate the role with the auth method
+curl -s -X POST "$GATEWAY/api/v2/assoc-role-am" \
+  -H "Content-Type: application/json" \
+  -d '{"role-name":"/spiffe/demo/svid-store-role","am-name":"/spiffe/demo/svid-store-auth","token":"<admin-token>"}'
+```
+
+Put the `access_id` and `access_key` from step 1 into `.env` as
+`SVID_STORE_ACCESS_ID` and `SVID_STORE_ACCESS_KEY`. For cloud identity, create
+the auth method with the matching `access_type` instead of api-key, and set
+`SVID_STORE_ACCESS_KEY` to empty.
+
 ## Python
 
 The bootstrap script uses Python to convert the SPIRE trust bundle into a JWKS,
