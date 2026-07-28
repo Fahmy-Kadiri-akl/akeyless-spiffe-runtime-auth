@@ -205,8 +205,8 @@ Both can run simultaneously. This repo demonstrates both: the .NET app uses a
 JWT-SVID to read a secret from Akeyless, and the Secret Manager plugin stores an
 X.509-SVID in Akeyless for consumption by other systems. The workload type is
 determined by how it is registered with SPIRE and which plugins are configured,
-not by the application language. The same .NET app, Python service, or Go binary
-can use either SVID type.
+not by the application language. The same .NET app, Python service, or Node
+process can use either SVID type.
 
 ## Audience
 

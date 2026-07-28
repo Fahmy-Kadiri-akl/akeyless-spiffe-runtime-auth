@@ -92,7 +92,7 @@ except SvidFetchFailed:
 secret = read_secret(token)
 ```
 
-Keep the dual-run for at least one full `CA_TTL` rotation cycle to confirm the
+Keep the dual-run for at least one full CA rotation cycle to confirm the
 JWKS refreshes correctly.
 
 ## Step 5: Verify

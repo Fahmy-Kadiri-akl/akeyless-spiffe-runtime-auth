@@ -21,7 +21,7 @@ ACCESS_KEY=<key>
 ```
 
 `ACCESS_ID` and `ACCESS_KEY` authenticate both SPIRE plugins
-plugin to Akeyless PKI. [Create them
+to Akeyless. [Create them
 first](02-prerequisites.md#creating-the-plugin-credentials) if you
 have not already.
 

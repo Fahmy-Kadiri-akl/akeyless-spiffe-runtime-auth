@@ -93,7 +93,7 @@ misconfigured role binding.
 | SPIRE server unhealthy | any failure | signing stops; all SVIDs eventually fail |
 | SVID issuance drops to zero | no successful fetches in N minutes | workloads cannot authenticate |
 | Akeyless auth failure spike | failure rate above baseline for 5 minutes | JWKS stale, role misconfigured, or attack |
-| JWKS age approaching CA_TTL | bundle not refreshed within rotation window | SVIDs will be rejected on next rotation |
+| JWKS age approaching CA rotation | bundle not refreshed within rotation window | SVIDs will be rejected on next rotation |
 
 ## A simple health-check script
 

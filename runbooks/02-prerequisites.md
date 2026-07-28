@@ -71,7 +71,7 @@ covers the full model.
 |---|---|
 | Workload | An `item-rule` granting `read` and `list` on the secret folder, bound to its SPIFFE ID. Nothing else. |
 | Bootstrap | `auth-method-rule` with `create`, `update`, `delete`, `read`; `role-rule` with `create`, `update`; `item-rule` with `create` on the configured paths including the PKI issuer. A full admin also works. |
-| UpstreamAuthority plugin | `item-rule` with `read` and `update` on the PKI issuer path (`UPSTREAM_CERT_ISSUER`); `item-rule` with `read`, `create`, `update`, and `list` on the JWT keys item (`UPSTREAM_CERT_ISSUER-jwt-keys` by default). |
+| Plugin (shared: UpstreamAuthority + Secret Manager) | `item-rule` with `read` and `update` on the PKI issuer path; `read`, `create`, `update`, and `list` on the JWT keys item; `create`, `update`, and `list` on the SVID target folder. |
 
 Akeyless does not let a role grant a capability its caller lacks. The bootstrap
 grants the workload `read` and `list` on the secret folder, so the bootstrap
