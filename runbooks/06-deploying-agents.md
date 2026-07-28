@@ -5,6 +5,10 @@ production your applications run on many hosts. This guide explains the model
 and how to put an agent on each host so your own application can get an
 identity.
 
+The server side, HA and one server per trust domain, is covered in
+[Production hardening](05-production.md). This guide is about the agents on
+your workload hosts.
+
 ## One server, one agent per host
 
 The model is one central `spire-server` for the whole trust domain, and one
@@ -77,7 +81,7 @@ on that host.
 3. On the server, register the workload against that agent with a selector that
    matches the workload's identity. In production use a dedicated UID, a process
    path, or a container label via the Docker workload attestor. See
-   [Workload selectors](05-production.md#workload-selectors-narrow-who-can-be-the-workload).
+   [Workload selectors](05-production.md#workload-selectors).
 
 4. Point your application at the socket,
    `/tmp/spire-agent/public/api.sock`, and fetch a JWT-SVID from the Workload
@@ -100,7 +104,7 @@ publish workflow rebuilds it on every change.
 - The deployed agent still sets `insecure_bootstrap = true`, which is the dev
   default. For a production trust domain, distribute the server bundle to the
   agent and remove that flag. See
-  [Agent bootstrap](05-production.md#agent-bootstrap-drop-the-insecure-flag).
+  [Agent bootstrap](05-production.md#agent-bootstrap).
 - Run the agent as a systemd service from the native binary, as a container, or
   in Kubernetes through the SPIRE CSI driver or a per-node agent DaemonSet.
   These are the standard production patterns.

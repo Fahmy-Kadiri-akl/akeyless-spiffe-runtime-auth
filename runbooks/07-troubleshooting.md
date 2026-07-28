@@ -1,8 +1,7 @@
 # Troubleshooting
 
 Categorized failure modes for this integration, each with a cause and a fix.
-Find the entry whose symptom matches your error. The fixes reflect how the
-scripts in this repo actually behave.
+Find the entry whose symptom matches your error.
 
 ## The SPIRE server will not start
 
