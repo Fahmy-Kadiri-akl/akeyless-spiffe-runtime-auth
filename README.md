@@ -63,7 +63,7 @@ within that cloud. SPIFFE works across cloud, on-prem, and hybrid.
 - A short-lived Akeyless token starting with `t-`, with permission to create auth methods, roles, and secrets.
 - Your Akeyless API gateway base URL (without `/api/v2`), reachable from the host running the app.
 
-For token minting and the exact capabilities the token needs, see [Prerequisites](runbooks/02-prerequisites.md).
+For token creation and the exact capabilities the token needs, see [Prerequisites](runbooks/02-prerequisites.md).
 
 ## Quick start
 

@@ -69,7 +69,7 @@ an existing secret alone. See
 
 The bootstrap is idempotent and safe to re-run. It recreates the auth method
 with the current bundle every time, which is what you want after the trust root
-changes: removing the server volume mints a fresh root, the old JWKS goes stale,
+changes: removing the server volume creates a fresh root, the old JWKS goes stale,
 and re-running refreshes it. For production, prefer a public bundle endpoint so
 Akeyless tracks rotation without a re-bootstrap. See
 [Production](06-production.md#bundle-distribution).
