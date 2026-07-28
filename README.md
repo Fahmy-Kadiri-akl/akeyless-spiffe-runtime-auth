@@ -52,11 +52,6 @@ This repo is the SPIFFE/SPIRE counterpart to [akeyless-uid-runtime-auth](https:/
 | Operational dependencies | Akeyless only | SPIRE server and agent, plus Akeyless |
 | Best when | You want rotation without deploying SPIRE | You can run SPIRE and want zero on-disk credentials |
 
-If you are in a cloud, also consider cloud-native workload identity: AWS IAM
-Roles for Service Accounts (IRSA), GCP Workload Identity, or Azure Managed
-Identity. These bind a cloud identity to a workload without SPIRE, but only
-within that cloud. SPIFFE works across cloud, on-prem, and hybrid.
-
 ## Prerequisites
 
 - Docker with the Compose v2 plugin. Verify with `docker compose version`.

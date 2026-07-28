@@ -107,6 +107,11 @@ root, so it cannot use an SVID.
 are preferred for cloud deployments because they eliminate the static key
 entirely. `universal_identity` auto-rotates the credential on any host.
 
+This is separate from cloud-native workload identity (AWS IRSA, GCP Workload
+Identity, Azure Managed Identity), which replaces SPIRE entirely for cloud-only
+workloads. SPIRE with cloud-identity auth gives you both: no static key on the
+server, and SPIFFE's portability across cloud, on-prem, and hybrid.
+
 ### Risk management
 
 The plugin credential is not ideal, but the risk is managed three ways:
