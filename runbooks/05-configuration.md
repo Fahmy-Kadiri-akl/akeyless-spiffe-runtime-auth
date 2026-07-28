@@ -30,7 +30,7 @@ app reads it from there at runtime.
 
 For the model behind these values, see [Concepts](01-concepts.md). For the
 production patterns, one trust domain per environment and per business unit, see
-[Environments and trust domains](05-production.md#environments-and-trust-domains).
+[Environments and trust domains](06-production.md#environments-and-trust-domains).
 Two rules that catch people:
 
 - Changing `SPIFFE_TRUST_DOMAIN` on a running deployment rewrites every SPIFFE
@@ -88,7 +88,7 @@ Paths in your Akeyless account that the bootstrap creates:
 
 `SPIRE_BUNDLE_ENDPOINT` is not an Akeyless object; it is the public JWKS URL
 SPIRE exposes so Akeyless can track key rotation. See
-[Lifetimes](#lifetimes) and [Bundle distribution](05-production.md#bundle-distribution).
+[Lifetimes](#lifetimes) and [Bundle distribution](06-production.md#bundle-distribution).
 
 Namespace these per environment so each bootstrap touches only its own objects:
 

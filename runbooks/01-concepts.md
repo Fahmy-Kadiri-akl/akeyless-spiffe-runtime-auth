@@ -135,7 +135,7 @@ them and grants each only what it needs.
 
 Those secrets and the roles that bind each workload are put in place by an
 administrator identity, separate from the workloads. See
-[Production](05-production.md#who-provisions-and-who-reads) for the capability
+[Production](06-production.md#who-provisions-and-who-reads) for the capability
 split between provisioning and reading.
 
 Two units that must not accept each other's identities get separate domains.
@@ -187,12 +187,12 @@ of its SPIFFE ID. SPIRE supports two forms.
 | SVID | Form | Used for | In this repo |
 |---|---|---|---|
 | JWT-SVID | Signed JSON Web Token | Bearer authentication to a service such as Akeyless | Yes. The .NET app trades one for an Akeyless token. |
-| X.509-SVID | Certificate plus private key | Mutual TLS between two workloads | Yes, in the optional [mTLS demo](08-x509-mtls.md). |
+| X.509-SVID | Certificate plus private key | Mutual TLS between two workloads | Yes, in the optional [mTLS demo](09-x509-mtls.md). |
 
 A JWT-SVID is short-lived, measured in minutes, and minted fresh on every run.
 Akeyless validates it against a public key set, which is why the secret-reading
 path uses JWT-SVIDs. X.509-SVIDs serve a different problem, workload-to-workload
-mTLS, shown separately in guide 08.
+mTLS, shown separately in guide 09.
 
 ## Audience
 

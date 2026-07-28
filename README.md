@@ -75,7 +75,7 @@ AKEYLESS_GATEWAY=https://your-account.akeyless.cloud/api/v2
 AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
 ```
 
-Everything else in `.env` sits under `# ---- advanced ----` and already has defaults that work for the demo. Leave it as-is. What each value means, including what it would mean in production, is in the [Configuration reference](runbooks/04-configuration.md).
+Everything else in `.env` sits under `# ---- advanced ----` and already has defaults that work for the demo. Leave it as-is. What each value means, including what it would mean in production, is in the [Configuration reference](runbooks/05-configuration.md).
 
 ### 3. Start SPIRE
 
@@ -127,7 +127,7 @@ Re-run the command any time. Each run fetches a fresh SVID.
 ./spire/down.sh
 ```
 
-If a step fails, find the matching error in [Troubleshooting](runbooks/07-troubleshooting.md).
+If a step fails, find the matching error in [Troubleshooting](runbooks/08-troubleshooting.md).
 
 ## Where to go next
 
@@ -136,17 +136,18 @@ If a step fails, find the matching error in [Troubleshooting](runbooks/07-troubl
 | Understand SPIFFE, SPIRE, SVIDs, trust domains, and audience | [Concepts](runbooks/01-concepts.md) |
 | Verify your environment and permissions | [Prerequisites](runbooks/02-prerequisites.md) |
 | The quick start with full explanations | [Quick start runbook](runbooks/03-quick-start.md) |
-| Understand every value in `.env`, including TTLs and production implications | [Configuration reference](runbooks/04-configuration.md) |
-| Move from the demo to production, including per-environment trust domains | [Production hardening](runbooks/05-production.md) |
-| Run an agent for your own app, host, or language | [Deploying agents](runbooks/06-deploying-agents.md) |
-| Diagnose a failure | [Troubleshooting](runbooks/07-troubleshooting.md) |
-| See X.509-SVID mTLS between two workloads (optional) | [X.509 mTLS demo](runbooks/08-x509-mtls.md) |
+| How the one-time Akeyless wiring works | [Wiring Akeyless](runbooks/04-wiring-akeyless.md) |
+| Understand every value in `.env`, including TTLs and production implications | [Configuration reference](runbooks/05-configuration.md) |
+| Move from the demo to production, including per-environment trust domains | [Production hardening](runbooks/06-production.md) |
+| Run an agent for your own app, host, or language | [Deploying agents](runbooks/07-deploying-agents.md) |
+| Diagnose a failure | [Troubleshooting](runbooks/08-troubleshooting.md) |
+| See X.509-SVID mTLS between two workloads (optional) | [X.509 mTLS demo](runbooks/09-x509-mtls.md) |
 
 ## Security model
 
 No credential is written to disk. The SVID lives only in memory for the call, is short-lived and audience-bound, and replaying it after expiry fails and is recorded in the Akeyless audit log. The workload's authority comes from the Akeyless role bound to its SPIFFE ID, not from the SVID itself.
 
-A compromised host is not stopped in real time: an attacker running code as the workload's UID can fetch valid SVIDs for as long as they hold that position. The defense is detection and revocation, which the short SVID lifetime and audit log make possible. For the full model and its limits, see [Production hardening](runbooks/05-production.md).
+A compromised host is not stopped in real time: an attacker running code as the workload's UID can fetch valid SVIDs for as long as they hold that position. The defense is detection and revocation, which the short SVID lifetime and audit log make possible. For the full model and its limits, see [Production hardening](runbooks/06-production.md).
 
 ## Repository layout
 

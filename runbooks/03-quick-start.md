@@ -21,7 +21,7 @@ AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
 You do not set a demo secret value. The bootstrap generates one in Akeyless.
 Everything under `# ---- advanced ----` has defaults that work for the demo, so
 leave it alone for now. What each value means is in
-[Configuration](04-configuration.md).
+[Configuration](05-configuration.md).
 
 ## 2. Start SPIRE
 
@@ -62,7 +62,7 @@ The demo secret defaults to a generated value at `/spiffe/demo/db-password`.
 Change the path with `AKEYLESS_SECRET` in `.env`. The value is a secret, so it
 is never set in `.env`: to use your own, create it in Akeyless directly and the
 bootstrap leaves it alone. See
-[Configuration](04-configuration.md#the-demo-secret).
+[Configuration](05-configuration.md#the-demo-secret).
 
 ## 4. Read the secret
 
@@ -108,6 +108,6 @@ will hold the old, stale JWKS.
 ## Where to go next
 
 If you want to understand every value in `.env`, including what each one means
-in production, read [Configuration](04-configuration.md). If you want to move
-this from a demo toward production, read [Production hardening](05-production.md).
-If something failed, find the matching error in [Troubleshooting](07-troubleshooting.md).
+in production, read [Configuration](05-configuration.md). If you want to move
+this from a demo toward production, read [Production hardening](06-production.md).
+If something failed, find the matching error in [Troubleshooting](08-troubleshooting.md).
