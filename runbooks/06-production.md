@@ -1,7 +1,6 @@
 # Production hardening
 
-The quick start is a self-contained demo. This guide is the delta to run it for
-real. Each concern has a demo form and a production form.
+Each concern has a demo form and a production form.
 
 ## Demo versus production at a glance
 

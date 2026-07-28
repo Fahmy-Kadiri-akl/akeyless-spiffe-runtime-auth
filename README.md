@@ -1,19 +1,17 @@
 # Runtime Authentication to Akeyless with SPIFFE / SPIRE
 
-A runnable reference for authenticating a workload to Akeyless with a SPIRE-issued JWT-SVID and reading a secret. The workload holds no credential of any kind. On each run it fetches a fresh identity document from the SPIRE Workload API, trades it for a short-lived Akeyless token, and reads the secret. No permanent credential sits on disk; the bootstrap uses
+A runnable reference for authenticating a workload to Akeyless with a SPIRE-issued JWT-SVID and reading a secret. The workload holds no credential of any kind. On each run it fetches a fresh identity document from the SPIRE Workload API, trades it for a short-lived Akeyless token, and reads the secret. The workload has no permanent credential on disk; the bootstrap uses
 a short-lived token that expires on its own. Akeyless is a secrets manager, like
 HashiCorp Vault or AWS Secrets Manager.
 
-This README is the landing page. It tells you what the repo is, gets you through a working demo, and points you at the [runbooks](runbooks/) for the full explanation. If any term below is new to you, read [Concepts you need first](runbooks/01-concepts.md) before the quick start. It defines every piece in plain language.
+New to SPIFFE or SPIRE? Read [Concepts](runbooks/01-concepts.md) first.
 
 ## Why use this
 
-- Zero secret material on the host. There is no token file and no API key at rest.
+- The workload has no credential at rest. No token file, no API key on the workload host.
 - Workloads prove who they are instead of carrying a credential.
 - Identities are short-lived and audience-bound, so they expire on their own and cannot be replayed elsewhere.
 - A workload's authority is scoped to a single secret path by a role bound to its identity.
-
-The concrete difference:
 
 | | Credential | Lifetime of a theft |
 |---|---|---|
@@ -24,10 +22,12 @@ The concrete difference:
 
 ```mermaid
 sequenceDiagram
-    participant App as Workload (.NET)
-    participant Agent as spire-agent
+    participant PKI as Akeyless PKI
     participant Server as spire-server
+    participant Agent as spire-agent
+    participant App as Workload (.NET)
     participant AKL as Akeyless Gateway
+    PKI->>Server: signs CA (UpstreamAuthority)
     Agent->>Server: attest (join token)
     Server-->>Agent: agent SVID + bundle
     App->>Agent: fetch JWT-SVID (audience=akeyless)

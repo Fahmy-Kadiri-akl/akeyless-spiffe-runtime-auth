@@ -1,9 +1,5 @@
 # Runbooks
 
-Step-by-step guides for authenticating a workload to Akeyless with
-SPIFFE/SPIRE, written for a reader who is new to all of it. They build on each
-other in order.
-
 ## Reading order
 
 The runbooks are numbered and follow a learning path. First-time setup runs

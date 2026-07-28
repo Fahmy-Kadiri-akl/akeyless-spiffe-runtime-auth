@@ -1,9 +1,7 @@
 # Migrating from on-disk credentials
 
 How to move an existing application from a static API key on disk to SPIFFE
-identity with Akeyless. This is the playbook for the most common real-world
-scenario: you have a service reading a secret today using a key file, and you
-want to eliminate that key.
+identity with Akeyless.
 
 ## The before state
 
