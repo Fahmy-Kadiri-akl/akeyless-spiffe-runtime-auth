@@ -92,9 +92,9 @@ The script ends with `==> SPIRE is up.`
 ```
 
 The script ends with `[setup] done.` It also creates the demo secret in Akeyless
-at `/spiffe/demo/db-password` with a generated value. To use your own, set
-`AKEYLESS_SECRET` (the path) and `AKEYLESS_DEMO_SECRET` (the value) in `.env`
-before this step.
+at `/spiffe/demo/db-password` with a generated value. Change the path with
+`AKEYLESS_SECRET` in `.env`. To use your own secret, create it in Akeyless
+directly at that path first; the bootstrap leaves an existing secret alone.
 
 ### 5. Read the secret
 
@@ -115,9 +115,9 @@ and reads the secret back from Akeyless. It prints:
       secret value: spiffe-demo-<timestamp>
 ```
 
-The `/spiffe/demo/db-password` path and `spiffe-demo-<timestamp>` value are
-the demo defaults. Override the path with `AKEYLESS_SECRET` and the value with
-`AKEYLESS_DEMO_SECRET` in `.env` before step 4.
+The `/spiffe/demo/db-password` path is the demo default; override it with
+`AKEYLESS_SECRET` in `.env`. The value is a generated placeholder, not a real
+secret; to use your own, provision it in Akeyless directly.
 
 Re-run the command any time. Each run fetches a fresh SVID.
 

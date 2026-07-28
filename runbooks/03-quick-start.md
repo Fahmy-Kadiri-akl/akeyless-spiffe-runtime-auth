@@ -58,10 +58,11 @@ ever run `spire/down.sh` and bring the stack back up, the server mints a fresh
 root, so you must re-run this step or authentication will fail with a stale
 JWKS.
 
-The demo secret defaults to a generated value at `/spiffe/demo/db-password`. To
-use your own, set `AKEYLESS_SECRET` (the path) and `AKEYLESS_DEMO_SECRET` (the
-value) in `.env` before running this step. See
-[Configuration](04-configuration.md#the-demo-secret-default-and-override).
+The demo secret defaults to a generated value at `/spiffe/demo/db-password`.
+Change the path with `AKEYLESS_SECRET` in `.env`. The value is a secret, so it
+is never set in `.env`: to use your own, create it in Akeyless directly and the
+bootstrap leaves it alone. See
+[Configuration](04-configuration.md#the-demo-secret).
 
 ## 4. Read the secret
 
@@ -89,9 +90,9 @@ SVID, Akeyless accepted it, and the role granted read access to the secret.
 The `exp=...` on the first line is the SVID's expiry time as a Unix timestamp.
 It is minutes away, which is the anti-theft window. The `spiffe-demo-<timestamp>`
 value is the demo payload the bootstrap wrote into Akeyless; the number is the
-time it was created. Both the path and the value are demo defaults; override the
-path with `AKEYLESS_SECRET` and the value with `AKEYLESS_DEMO_SECRET` in `.env`
-before step 3.
+time it was created. The path is the demo default, overridable with
+`AKEYLESS_SECRET`; the value is generated, so to use your own secret, provision
+it in Akeyless directly.
 
 ## Tear down
 
