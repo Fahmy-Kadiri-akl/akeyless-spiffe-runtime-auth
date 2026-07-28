@@ -1,0 +1,70 @@
+# Self-contained dev SPIRE topology for akeyless-spiffe-runtime-auth.
+#
+# Two services:
+#   spire-server  - the trust root for the dev trust domain "example.org".
+#   host          - a single container running spire-agent AND the .NET
+#                   reference app. Co-locating agent and workload mirrors an
+#                   on-prem host, so unix-UID workload attestation works with
+#                   no extra plumbing.
+#
+# Bring everything up with:  ./up.sh      (also registers the workload)
+# Tear down with:            ./down.sh
+
+services:
+  spire-server:
+    image: ghcr.io/spiffe/spire-server:1.15.2
+    # The image runs as uid 1000, but named Docker volumes are root-owned, so
+    # uid 1000 cannot write its SQLite store. Run the dev server as root so it
+    # can use the data volume. Production should own the volume as uid 1000 and
+    # drop privileges instead.
+    user: "0:0"
+    # The image entrypoint is `spire-server run`; it reads its default config at
+    # /opt/spire/conf/server/server.conf (WorkingDir /opt/spire). Mount ours at
+    # that path, so no command override is needed.
+    volumes:
+      - ./spire/.data/server.conf:/opt/spire/conf/server/server.conf:ro
+      - spire-server-data:/opt/spire/.data/server
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD", "/opt/spire/bin/spire-server", "healthcheck", "-socketPath", "/tmp/spire-server/private/api.sock"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
+  host:
+    # Pulled pre-built from GHCR by default (see the publish workflow). The
+    # build is a fallback for local development from source.
+    image: ghcr.io/fahmy-kadiri-akl/akeyless-spiffe-runtime-auth-host:latest
+    build:
+      context: .
+      dockerfile: spire/Dockerfile.host
+    depends_on:
+      spire-server:
+        condition: service_healthy
+    environment:
+      # Generated at runtime by up.sh and written to .env. Left empty here so
+      # compose can parse the file before up.sh mints the token; the entrypoint
+      # refuses to start without it.
+      JOIN_TOKEN: ${JOIN_TOKEN:-}
+      SPIFFE_WORKLOAD_SOCKET: /tmp/spire-agent/public/api.sock
+      AKEYLESS_GATEWAY: ${AKEYLESS_GATEWAY}
+      AKEYLESS_ACCESS_ID: ${AKEYLESS_ACCESS_ID:-}
+      AKEYLESS_AUTH_METHOD: ${AKEYLESS_AUTH_METHOD:-/spiffe/demo/auth}
+      AKEYLESS_SECRET: ${AKEYLESS_SECRET:-/spiffe/demo/db-password}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-akeyless}
+    volumes:
+      - spire-agent-data:/opt/spire/.data/agent
+      # Trust domain is rendered into these at runtime by spire/up.sh.
+      - ./spire/.data/agent.conf:/opt/spire/conf/agent/agent.conf:ro
+      # bootstrap/setup-akeyless.sh writes the auth-method access id here; the
+      # app reads it at runtime so it works even though this container starts
+      # before the bootstrap runs.
+      - ./spire/.data:/run/spire-data:ro
+    entrypoint: ["/opt/host-entrypoint.sh"]
+    stdin_open: true
+    tty: true
+
+volumes:
+  spire-server-data:
+  spire-agent-data:

@@ -1,0 +1,9 @@
+bin/
+obj/
+.env
+.env.*
+!.env.example
+*.swp
+.DS_Store
+spire/.data/
+spire/certs/

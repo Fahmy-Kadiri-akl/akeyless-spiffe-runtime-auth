@@ -1,0 +1,17 @@
+# Slim, app-agnostic SPIRE agent image. This is the portable SPIFFE/SPIRE
+# component: it provides only the Workload API, so any application in any
+# language can consume it for identity. It contains no application, no .NET, and
+# no Akeyless CLI.
+#
+# The image is self-contained: run it with SPIRE_SERVER_ADDRESS,
+# SPIFFE_TRUST_DOMAIN, and JOIN_TOKEN in the environment, plus --pid host and a
+# volume for the Workload API socket.
+
+FROM ghcr.io/spiffe/spire-agent:1.15.2 AS spire
+FROM debian:bookworm-slim
+
+COPY --from=spire /opt/spire/bin/spire-agent /usr/local/bin/spire-agent
+COPY agent/agent-entrypoint.sh /usr/local/bin/agent-entrypoint
+RUN chmod +x /usr/local/bin/agent-entrypoint
+
+ENTRYPOINT ["/usr/local/bin/agent-entrypoint"]

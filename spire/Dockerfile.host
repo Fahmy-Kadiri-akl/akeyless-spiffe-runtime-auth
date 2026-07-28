@@ -1,0 +1,26 @@
+# "host" container: spire-agent + the .NET reference app, co-located in one
+# container so unix-UID workload attestation works with no extra plumbing
+# (mirrors an on-prem host where the agent and workload share a kernel).
+# The app calls the Akeyless REST API over HTTP, so no Akeyless CLI is needed.
+
+# --- stage 1: pull the spire-agent binary out of the official image ---
+FROM ghcr.io/spiffe/spire-agent:1.15.2 AS spire
+
+# --- stage 2: .NET 8 SDK + app ---
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+# spire-agent binary (talks to the Workload API)
+COPY --from=spire /opt/spire/bin/spire-agent /usr/local/bin/spire-agent
+
+WORKDIR /app
+COPY app/SecretConsumer.csproj ./
+RUN dotnet restore
+COPY app/ ./
+RUN dotnet build -c Release --no-restore
+
+# Agent config + host entrypoint
+COPY spire/agent.conf /opt/spire/conf/agent/agent.conf
+COPY spire/host-entrypoint.sh /opt/host-entrypoint.sh
+RUN chmod +x /opt/host-entrypoint.sh
+
+ENTRYPOINT ["/opt/host-entrypoint.sh"]
