@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Bring up the self-contained dev SPIRE topology and register the workload.
+# Bring up the SPIRE topology and register the workloads.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
