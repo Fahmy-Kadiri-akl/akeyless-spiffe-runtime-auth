@@ -133,6 +133,7 @@ If a step fails, find the matching error in [Troubleshooting](runbooks/07-troubl
 | Move from the demo to production | [Production hardening](runbooks/05-production.md) |
 | Run an agent for your own app, host, or language | [Deploying agents](runbooks/06-deploying-agents.md) |
 | Diagnose a failure | [Troubleshooting](runbooks/07-troubleshooting.md) |
+| See X.509-SVID mTLS between two workloads (optional) | [X.509 mTLS demo](runbooks/08-x509-mtls.md) |
 
 ## Security model
 
@@ -147,7 +148,7 @@ spire/                         dev SPIRE topology and orchestration
   docker-compose.yml           spire-server and host services
   server.conf                  dev trust domain, self-signed CA, lifetimes
   agent.conf                   Workload API socket, bootstrap
-  Dockerfile.host              .NET 8 SDK with spire-agent and the .NET reference app
+  Dockerfile.host              .NET 8 app + spire-agent + the Go X.509 mTLS demo pair
   up.sh / down.sh              start and tear down the stack
   register-workload.sh         register the workload by Unix UID
   spire.env.example            template for .env
@@ -162,6 +163,10 @@ agent/                         portable, app-agnostic SPIRE agent
 app/                           .NET 8 reference workload
   Program.cs                   fetch SVID, authenticate, read secret
   SecretConsumer.csproj
+mtls/                          X.509-SVID mTLS demo (Go + go-spiffe)
+  server/ client/              mTLS pair that proves two workloads to each other
+  demo.sh                      in-container demo runner
+  run-mtls.sh                  host-side entry point: register workloads and run
 runbooks/                      beginner guides: concepts, setup, production, troubleshooting
 ```
 

@@ -61,6 +61,7 @@ services:
       # app reads it at runtime so it works even though this container starts
       # before the bootstrap runs.
       - ./spire/.data:/run/spire-data:ro
+    init: true
     entrypoint: ["/opt/host-entrypoint.sh"]
     stdin_open: true
     tty: true
