@@ -2,8 +2,7 @@
 
 The one-time admin step that connects SPIRE to Akeyless. It gives Akeyless the
 public key to verify your workloads' SVIDs and creates the role that decides
-what each workload may read. This guide is the canonical walkthrough of what
-`bootstrap/setup-akeyless.sh` does. The quick start runs it; this explains it.
+what each workload may read.
 
 ## What the bootstrap does
 

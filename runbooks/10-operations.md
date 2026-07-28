@@ -1,8 +1,7 @@
 # Operations and observability
 
 How to keep a SPIRE + Akeyless deployment running and catch problems before
-they break authentication. This guide is for the operator who has the demo
-working and needs to monitor it in production.
+they break authentication.
 
 ## What to monitor
 

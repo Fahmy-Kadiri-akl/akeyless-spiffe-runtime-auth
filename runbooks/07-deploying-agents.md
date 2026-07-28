@@ -1,13 +1,10 @@
 # Deploying an agent for your application
 
 The quick start runs the server, the agent, and the app all on one host. In
-production your applications run on many hosts. This guide explains the model
-and how to put an agent on each host so your own application can get an
-identity.
+production your applications run on many hosts.
 
 The server side, HA and one server per trust domain, is covered in
-[Production hardening](06-production.md). This guide is about the agents on
-your workload hosts.
+[Production hardening](06-production.md).
 
 ## One server, one agent per host
 
