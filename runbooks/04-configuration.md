@@ -48,15 +48,15 @@ apply unless you override them.
 |---|---|---|
 | `JWT_SVID_TTL` | `5m` | How long each JWT-SVID lives. Shorter tightens the anti-theft window: a stolen SVID stops working sooner. This is the value that most directly limits the damage of a leaked token. |
 | `CA_TTL` | `24h` | How long the trust-root CA and JWT signing key live before SPIRE rotates them. |
-| `X509_SVID_TTL` | `1h` | How long an X.509-SVID would live. |
+| `X509_SVID_TTL` | `1h` | How long each X.509-SVID lives, used by the mTLS demo. |
 
-`X509_SVID_TTL` has no effect on the demo. This demo fetches and uses JWT-SVIDs
-only. Nothing in the repo ever requests an X.509-SVID, so this value is never
-exercised and is not tested. It appears here only because SPIRE's server
-configuration exposes both lifetimes and `spire/up.sh` renders the full config.
-If you extend the demo to use X.509-SVIDs for mTLS, this is the knob that
-would govern their lifetime. See [SVIDs](01-concepts.md#svids-the-identity-document)
-for why this demo is JWT-only.
+The Akeyless secret-read path uses JWT-SVIDs, but the repo also ships an
+X.509-SVID mTLS demo where two workloads authenticate each other over mutual
+TLS. `X509_SVID_TTL` governs the lifetime of those X.509-SVIDs; the go-spiffe
+library refreshes each one before it expires, so the demo keeps working across
+rotation. Run it with [X.509-SVID mTLS](08-x509-mtls.md). See
+[SVIDs](01-concepts.md#svids-the-identity-document) for why the Akeyless path
+itself is JWT-only.
 
 When SPIRE rotates its JWT signing key on the CA cadence, the inline JWKS stored
 on the Akeyless auth method goes stale, and SVIDs are rejected until you re-run

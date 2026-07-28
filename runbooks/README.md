@@ -7,7 +7,8 @@ other in order.
 ## Reading order
 
 The runbooks are numbered and follow a learning path. First-time setup runs
-straight through 01 to 04. If something breaks, jump to 07.
+straight through 01 to 04. Guide 08 is an optional demo of X.509-SVID mTLS. If
+something breaks, jump to 07.
 
 | # | Guide | When you need it |
 |---|---|---|
@@ -18,6 +19,7 @@ straight through 01 to 04. If something breaks, jump to 07.
 | 5 | [Production hardening](05-production.md) | Move from the demo toward production: trust root, selectors, bundle distribution, security model. |
 | 6 | [Deploying agents](06-deploying-agents.md) | Put an agent on each of your own hosts, for your own app and language. |
 | 7 | [Troubleshooting](07-troubleshooting.md) | Categorized failure modes with causes and fixes. |
+| 8 | [X.509-SVID mTLS](08-x509-mtls.md) | Optional. See two workloads authenticate each other over mutual TLS with X.509-SVIDs. |
 
 The repository-level [`../README.md`](../README.md) covers what the repo is,
 why it exists, and a one-shot quick start. These runbooks go deeper and assume

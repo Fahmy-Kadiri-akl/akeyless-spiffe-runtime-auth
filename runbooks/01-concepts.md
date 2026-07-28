@@ -133,13 +133,12 @@ An X.509-SVID is a certificate plus a private key. It is used for mutual TLS
 between services, where two workloads establish an encrypted, authenticated
 connection directly with each other.
 
-This demo does not use, fetch, or test X.509-SVIDs. The .NET app fetches only a
-JWT-SVID, and the Akeyless side is wired for JWT validation. If you need mTLS
-between your own services, that is a separate SPIRE capability this repo does
-not cover. Because nothing here requests an X.509-SVID, the `X509_SVID_TTL`
-setting in `.env` has no effect on the demo. It exists only because SPIRE's
-server configuration exposes it. See [Configuration](04-configuration.md) for
-the detail.
+This repo demonstrates both. The Akeyless path uses a JWT-SVID: the .NET app
+fetches a JWT-SVID and Akeyless validates it. The X.509-SVID path is shown
+separately, where two Go programs use go-spiffe to fetch X.509-SVIDs and
+connect to each other over mutual TLS, each accepting only the other's SPIFFE
+ID. See [X.509-SVID mTLS](08-x509-mtls.md) to run it. The `X509_SVID_TTL`
+setting in `.env` governs the lifetime of those X.509-SVIDs.
 
 ## Audience: who the SVID is for
 
