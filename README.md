@@ -71,12 +71,14 @@ cd akeyless-spiffe-runtime-auth
 cp spire/spire.env.example .env
 ```
 
-Edit `.env` and set two values. The bootstrap generates the demo secret in Akeyless, so nothing else is required.
+Edit `.env` and set two values:
 
 ```
 AKEYLESS_GATEWAY=https://your-account.akeyless.cloud/api/v2
 AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
 ```
+
+Everything else in `.env` sits under `# ---- advanced ----` and already has defaults that work for the demo. Leave it as-is. You would only change it to rename the trust domain, the workload, or the token lifetimes; see the [Configuration reference](runbooks/05-configuration.md).
 
 ### 3. Start SPIRE
 
