@@ -17,23 +17,6 @@ This prints a version line like `Docker Compose version v2.x`. If you see
 Docker must also be able to reach the internet to pull images. The demo pulls
 the SPIRE server and agent images and the pre-built host image from GHCR.
 
-## The Akeyless CLI
-
-You need the Akeyless CLI on the admin host, which is the machine where you
-will mint a token and run the bootstrap. It is a single static binary. On Linux:
-
-```bash
-curl -fsSL -o akeyless https://akeyless-cli.s3.us-east-2.amazonaws.com/cli/latest/production/cli-linux-amd64
-chmod +x akeyless
-```
-
-The CLI self-installs into `~/.akeyless/bin` on first run. You use it on the
-admin host for two things: minting the short-lived bootstrap token, and running
-`bootstrap/setup-akeyless.sh`, which calls the CLI to create the auth method,
-role, and secret. The reference app does not use it. The app reaches Akeyless
-through the REST API over HTTPS, so there is no Akeyless CLI in the container
-and none needed at runtime.
-
 ## Your Akeyless gateway URL
 
 You need your account's API gateway URL, reachable from the host that runs the
@@ -45,19 +28,18 @@ the wrong endpoint and fails with a confusing parameter error.
 ## A short-lived token for the bootstrap
 
 The bootstrap is the one-time step that wires SPIRE into Akeyless. It runs as
-an administrator, and it authenticates with a short-lived token, never with a
-long-lived API key. Mint one with whichever auth method you prefer:
+an administrator and authenticates with a short-lived token, never a long-lived
+API key. Mint one however you normally authenticate to Akeyless: API key, SAML,
+OIDC, or the console. Copy the `t-...` token into `AKEYLESS_TOKEN` in `.env`. It
+expires on its own, so no permanent admin credential survives in the repo or CI
+history. It needs the capabilities listed under "Required Akeyless permissions"
+below.
 
-```bash
-akeyless auth --access-id <p-...> --access-type access_key \
-  --access-key <key> --gateway-url <your-gateway>
-```
-
-Copy the printed `Token: t-...` value into `AKEYLESS_TOKEN` in `.env`. The token
-expires on its own. The use case is one-time admin wiring: you run the bootstrap
-once to create the auth method, role, and secret, then let the token die so no
-permanent admin credential survives in the repo or in CI history. It needs the
-capabilities listed under "Required Akeyless permissions" below.
+The bootstrap script calls the Akeyless CLI to create the auth method, role, and
+secret, so the CLI must be on PATH wherever you run
+`./bootstrap/setup-akeyless.sh`. It is a general tool; install it the way you
+normally do for Akeyless. The reference app does not use it: the app calls the
+Akeyless REST API directly, so no CLI ships in the container.
 
 ### Check that the token works
 

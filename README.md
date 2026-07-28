@@ -46,11 +46,10 @@ This repo is the SPIFFE/SPIRE counterpart to [akeyless-uid-runtime-auth](https:/
 ## Prerequisites
 
 - Docker with the Compose v2 plugin. Verify with `docker compose version`.
-- The Akeyless CLI on the admin host, used to mint a token and run the bootstrap.
 - A short-lived Akeyless token starting with `t-`, with permission to create auth methods, roles, and secrets.
 - Your Akeyless API gateway URL, reachable from the host running the app.
 
-For install commands, token minting, and the exact capabilities the token needs, see [Prerequisites](runbooks/02-prerequisites.md).
+For token minting and the exact capabilities the token needs, see [Prerequisites](runbooks/02-prerequisites.md).
 
 ## Quick start
 
