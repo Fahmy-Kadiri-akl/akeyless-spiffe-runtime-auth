@@ -21,6 +21,8 @@ something breaks, jump to 08.
 | 7 | [Deploying agents](07-deploying-agents.md) | Put an agent on each of your own hosts, for your own app and language. |
 | 8 | [Troubleshooting](08-troubleshooting.md) | Categorized failure modes with causes and fixes. |
 | 9 | [X.509-SVID mTLS](09-x509-mtls.md) | Optional. See two workloads authenticate each other over mutual TLS with X.509-SVIDs. |
+| 10 | [Operations and observability](10-operations.md) | Monitor a production deployment: health checks, alerting, broken SVID detection. |
+| 11 | [Migrating from on-disk credentials](11-migration.md) | Move an existing app from a static API key to SPIFFE identity. |
 
 The repository-level [`../README.md`](../README.md) covers what the repo is,
 why it exists, and a one-shot quick start. These runbooks go deeper and assume

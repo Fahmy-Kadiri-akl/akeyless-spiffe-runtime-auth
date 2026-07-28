@@ -41,9 +41,20 @@ fields:
 UpstreamAuthority "akeyless_pki" {
     plugin_data {
         akeyless_gateway_url = "https://your-gateway/api/v2"
-        access_id            = "<p-...>"
-        access_key           = "<key>"
-        # custom_ca_bundle   = "/path/to/ca.pem"   # for an internal gateway
+
+        # The access id of the auth method the plugin uses to sign certificates.
+        access_id = "<p-...>"
+
+        # Choose one access_type. Each needs different fields:
+        #   api_key            : provide access_key below
+        #   aws_iam            : cloud identity via IAM role; no access_key needed
+        #   gcp                : cloud identity via service account; no access_key needed
+        #   azure              : cloud identity via managed identity; no access_key needed
+        #   universal_identity : provide a UID token inline or via a file
+        access_type = "api_key"
+        access_key  = "<key>"              # only for api_key; omit for cloud identity
+
+        # custom_ca_bundle = "/path/to/ca.pem"   # for an internal gateway
     }
 }
 ```
