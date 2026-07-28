@@ -82,14 +82,20 @@ cd akeyless-spiffe-runtime-auth
 cp spire/spire.env.example .env
 ```
 
-Edit `.env` and set two values:
+Edit `.env` and set four values:
 
 ```
 AKEYLESS_GATEWAY=https://your-account.akeyless.cloud
 AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
+UPSTREAM_ACCESS_ID=<p-...>
+UPSTREAM_ACCESS_KEY=<key>
 ```
 
-.env is gitignored, so the token never reaches the repo.
+`AKEYLESS_TOKEN` is a short-lived bootstrap token. `UPSTREAM_ACCESS_ID` and
+`UPSTREAM_ACCESS_KEY` are persistent credentials for the UpstreamAuthority
+plugin; [create them first](runbooks/02-prerequisites.md#creating-the-upstreamauthority-credentials).
+
+`.env` is gitignored, so none of these reach the repo.
 
 Everything else in `.env` sits under `# ---- advanced ----` and already has defaults that work for the demo. Leave it as-is. What each value means, including what it would mean in production, is in the [Configuration reference](runbooks/05-configuration.md).
 
