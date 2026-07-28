@@ -91,7 +91,10 @@ The script ends with `==> SPIRE is up.`
 ./bootstrap/setup-akeyless.sh
 ```
 
-The script ends with `[setup] done.`
+The script ends with `[setup] done.` It also creates the demo secret in Akeyless
+at `/spiffe/demo/db-password` with a generated value. To use your own, set
+`AKEYLESS_SECRET` (the path) and `AKEYLESS_DEMO_SECRET` (the value) in `.env`
+before this step.
 
 ### 5. Read the secret
 
@@ -100,7 +103,8 @@ docker compose --project-directory . -f spire/docker-compose.yml exec host \
   dotnet /app/bin/Release/net8.0/secret-consumer.dll
 ```
 
-The app prints:
+This runs the reference app. It fetches an SVID, trades it for an Akeyless token,
+and reads the secret back from Akeyless. It prints:
 
 ```
 [1/3] Fetching JWT-SVID (audience=akeyless) from /tmp/spire-agent/public/api.sock ...

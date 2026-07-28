@@ -58,6 +58,11 @@ ever run `spire/down.sh` and bring the stack back up, the server mints a fresh
 root, so you must re-run this step or authentication will fail with a stale
 JWKS.
 
+The demo secret defaults to a generated value at `/spiffe/demo/db-password`. To
+use your own, set `AKEYLESS_SECRET` (the path) and `AKEYLESS_DEMO_SECRET` (the
+value) in `.env` before running this step. See
+[Configuration](04-configuration.md#the-demo-secret-default-and-override).
+
 ## 4. Read the secret
 
 ```bash
@@ -65,7 +70,8 @@ docker compose --project-directory . -f spire/docker-compose.yml exec host \
   dotnet /app/bin/Release/net8.0/secret-consumer.dll
 ```
 
-The app prints three steps:
+This runs the reference app, which reads the secret from Akeyless. It prints
+three steps:
 
 ```
 [1/3] Fetching JWT-SVID (audience=akeyless) from /tmp/spire-agent/public/api.sock ...
