@@ -179,4 +179,4 @@ pip install cryptography
 You also need them to run `bootstrap/verify-svid.sh` if you validate a JWT-SVID
 by hand.
 
-Now read [Quick start](03-quick-start.md).
+Next: [Quick start](03-quick-start.md)

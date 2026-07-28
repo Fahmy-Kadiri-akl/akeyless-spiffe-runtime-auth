@@ -86,8 +86,20 @@ set for each, is covered in
 `spire/down.sh` removes the SPIRE containers and volumes but leaves the Akeyless
 auth method, role, and secret in your account. To remove them:
 
-Delete the auth method, role, and secret from your Akeyless account, either
-through the Akeyless console or the REST API (`/api/v2/delete-auth-method`,
-`/api/v2/delete-role`, `/api/v2/delete-item`).
+```bash
+GATEWAY="${AKEYLESS_GATEWAY%/}"
+T="$AKEYLESS_TOKEN"
+curl -s -X POST "$GATEWAY/api/v2/delete-item" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"$AKEYLESS_SECRET\",\"token\":\"$T\"}"
+curl -s -X POST "$GATEWAY/api/v2/delete-role" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"$AKEYLESS_ROLE\",\"token\":\"$T\"}"
+curl -s -X POST "$GATEWAY/api/v2/delete-auth-method" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"$AKEYLESS_AUTH_METHOD\",\"token\":\"$T\"}"
+```
+
+You can also remove them through the Akeyless console.
 
 Next: [Configuration](05-configuration.md)

@@ -11,17 +11,23 @@ cd akeyless-spiffe-runtime-auth
 cp spire/spire.env.example .env
 ```
 
-Edit `.env` and set two values:
+Edit `.env` and set four values:
 
 ```
-AKEYLESS_GATEWAY=https://your-account.akeyless.cloud/api/v2
+AKEYLESS_GATEWAY=https://your-account.akeyless.cloud
 AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
+UPSTREAM_ACCESS_ID=<p-...>
+UPSTREAM_ACCESS_KEY=<key>
 ```
 
-You do not set a demo secret value. The bootstrap generates one in Akeyless.
-Everything under `# ---- advanced ----` has defaults that work for the demo, so
-leave it alone for now. What each value means is in
-[Configuration](05-configuration.md).
+`UPSTREAM_ACCESS_ID` and `UPSTREAM_ACCESS_KEY` authenticate the UpstreamAuthority
+plugin to Akeyless PKI. [Create them
+first](02-prerequisites.md#creating-the-upstreamauthority-credentials) if you
+have not already.
+
+The demo secret is generated in Akeyless by the bootstrap. Everything else
+under `# ---- advanced ----` has defaults. See
+[Configuration](05-configuration.md) for what each value means.
 
 ## 2. Start SPIRE
 
@@ -105,9 +111,4 @@ in those volumes, so the next `up.sh` creates a fresh trust root. After a fresh
 root you must re-run `./bootstrap/setup-akeyless.sh`, because the auth method
 will hold the old, stale JWKS.
 
-## Where to go next
-
-If you want to understand every value in `.env`, including what each one means
-in production, read [Configuration](05-configuration.md). If you want to move
-this from a demo toward production, read [Production hardening](06-production.md).
-If something failed, find the matching error in [Troubleshooting](08-troubleshooting.md).
+Next: [Wiring Akeyless](04-wiring-akeyless.md)

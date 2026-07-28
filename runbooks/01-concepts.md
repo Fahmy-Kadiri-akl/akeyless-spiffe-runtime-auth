@@ -17,13 +17,6 @@ receives a token good for minutes, uses it, and lets it expire. Nothing secret
 is written to disk, so there is nothing to steal. SPIFFE and SPIRE provide the
 identity; Akeyless holds the secret.
 
-A concrete before and after:
-
-| | Credential | Lifetime of a theft |
-|---|---|---|
-| Before | API key in `/etc/akeyless/key` | as long as the key is valid; no trace |
-| After | a JWT-SVID fetched per call | minutes, then the SVID is dead and a replay is logged |
-
 ## The cast
 
 | Participant | Role | In this repo |
@@ -242,26 +235,9 @@ into a JWKS, short for JSON Web Key Set, which is a standard format for
 publishing public keys. The bootstrap stores that JWKS on the Akeyless auth
 method so Akeyless can verify SVID signatures at authentication time.
 
-## The full picture
+## The end-to-end flow
 
-With every piece defined, the end-to-end flow is a loop the workload runs each
-call.
-
-```mermaid
-sequenceDiagram
-    participant App as Workload (.NET)
-    participant Agent as spire-agent
-    participant Server as spire-server
-    participant AKL as Akeyless Gateway
-    Agent->>Server: attest (join token)
-    Server-->>Agent: agent SVID + bundle
-    App->>Agent: fetch JWT-SVID (audience=akeyless)
-    Agent-->>App: JWT-SVID (sub=spiffe://..., ttl minutes)
-    App->>AKL: auth (access-id, jwt=SVID)
-    AKL-->>App: Akeyless token
-    App->>AKL: get-secret-value (token)
-    AKL-->>App: secret value
-```
+The [README](../README.md#how-it-works) has the sequence diagram. In words:
 
 1. The agent attests to the server once with a join token and receives its own
    identity and the trust bundle.

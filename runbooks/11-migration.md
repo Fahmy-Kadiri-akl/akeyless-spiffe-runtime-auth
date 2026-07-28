@@ -127,3 +127,5 @@ If the SVID path fails and you need to fall back quickly:
 
 Rollback is fast because the old path is independent of SPIRE. The key file and
 the SVID path do not interfere with each other.
+
+This is the last guide in the set. For ongoing operations, see [Operations and observability](10-operations.md).
