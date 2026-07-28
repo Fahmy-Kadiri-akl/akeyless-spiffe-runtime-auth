@@ -63,7 +63,7 @@ within that cloud. SPIFFE works across cloud, on-prem, and hybrid.
 - A short-lived Akeyless token starting with `t-`, with permission to create auth methods, roles, and secrets.
 - Your Akeyless API gateway base URL (without `/api/v2`), reachable from the host running the app.
 
-For token minting and the exact capabilities the token needs, see [Prerequisites](runbooks/02-prerequisites.md).
+For token creation and the exact capabilities the token needs, see [Prerequisites](runbooks/02-prerequisites.md).
 
 ## Quick start
 
@@ -82,14 +82,20 @@ cd akeyless-spiffe-runtime-auth
 cp spire/spire.env.example .env
 ```
 
-Edit `.env` and set two values:
+Edit `.env` and set four values:
 
 ```
 AKEYLESS_GATEWAY=https://your-account.akeyless.cloud
 AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
+UPSTREAM_ACCESS_ID=<p-...>
+UPSTREAM_ACCESS_KEY=<key>
 ```
 
-.env is gitignored, so the token never reaches the repo.
+`AKEYLESS_TOKEN` is a short-lived bootstrap token. `UPSTREAM_ACCESS_ID` and
+`UPSTREAM_ACCESS_KEY` are persistent credentials for the UpstreamAuthority
+plugin; [create them first](runbooks/02-prerequisites.md#creating-the-upstreamauthority-credentials).
+
+`.env` is gitignored, so none of these reach the repo.
 
 Everything else in `.env` sits under `# ---- advanced ----` and already has defaults that work for the demo. Leave it as-is. What each value means, including what it would mean in production, is in the [Configuration reference](runbooks/05-configuration.md).
 
@@ -172,7 +178,7 @@ A compromised host is not stopped in real time: an attacker running code as the 
 ```
 spire/                         dev SPIRE topology and orchestration
   docker-compose.yml           spire-server and host services
-  server.conf                  dev trust domain, self-signed CA, lifetimes
+  server.conf                  trust domain, UpstreamAuthority config, lifetimes
   agent.conf                   Workload API socket, bootstrap
   Dockerfile.host              .NET 8 app + spire-agent + the Go X.509 mTLS demo pair
   up.sh / down.sh              start and tear down the stack

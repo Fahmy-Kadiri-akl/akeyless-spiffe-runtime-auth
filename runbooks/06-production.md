@@ -7,20 +7,19 @@ real. Each concern has a demo form and a production form.
 
 | Concern | Demo | Production |
 |---|---|---|
-| Trust root | self-signed CA in a Docker volume | Akeyless PKI as the SPIRE upstream authority |
+| Trust root | Akeyless UpstreamAuthority | same. Use cloud identity (aws_iam/gcp/azure) instead of api_key in production |
 | Bundle to Akeyless | inline JWKS; re-run the bootstrap on rotation | `SPIRE_BUNDLE_ENDPOINT` public endpoint; Akeyless tracks rotation |
 | Workload selector | `unix:uid:0`, any root process | dedicated UID, executable path, or container image or label selector |
 | Agent bootstrap | `insecure_bootstrap = true` | server bundle distributed out of band; flag removed |
 | Server | one container on one host | HA cluster, one per trust domain |
 | Trust domain | `example.org` | a name you control, unique per environment |
 
-## Trust root: Akeyless as upstream authority
+## Trust root: Akeyless UpstreamAuthority
 
-The goal is a root your whole fleet trusts and that rotates without an outage.
-A self-signed root in a local volume is hard to rotate, hard to audit, and
-trusted by no one but itself. Make Akeyless the upstream authority so it signs
-and rotates SPIRE's CA. Configure the SPIRE Upstream Authority plugin against
-an Akeyless PKI certificate issuer.
+The UpstreamAuthority plugin signs and rotates the trust root through Akeyless
+PKI. The demo creates the PKI issuer and configures the plugin automatically via
+`UPSTREAM_ACCESS_ID`, `UPSTREAM_ACCESS_KEY`, and `UPSTREAM_CERT_ISSUER` in
+`.env`.
 
 ```mermaid
 flowchart LR
@@ -31,48 +30,38 @@ flowchart LR
 ```
 
 Akeyless signs the trust-root CA, but JWT-SVIDs stay signed by SPIRE's own key,
-so the Akeyless flow is unchanged. This setup was validated end to end.
+so the Akeyless flow is unchanged.
 
-Create a PKI certificate issuer in Akeyless first, then configure the SPIRE
-UpstreamAuthority plugin in `server.conf`. The validated config uses these
-fields:
+The plugin is a pre-built binary downloaded from `download.akeyless.io`. The
+`spire/Dockerfile.server` image includes it. The `server.conf` stanza:
 
 ```hcl
-UpstreamAuthority "akeyless_pki" {
+UpstreamAuthority "akeyless_upstream" {
+    plugin_cmd = "/opt/spire/AkeylessUpstreamAuthority"
     plugin_data {
-        akeyless_gateway_url = "https://your-gateway/api/v2"
-
-        # The access id of the auth method the plugin uses to sign certificates.
-        access_id = "<p-...>"
-
-        # Choose one access_type. Each needs different fields:
-        #   api_key            : provide access_key below
-        #   aws_iam            : cloud identity via IAM role; no access_key needed
-        #   gcp                : cloud identity via service account; no access_key needed
-        #   azure              : cloud identity via managed identity; no access_key needed
-        #   universal_identity : provide a UID token inline or via a file
-        access_type = "api_key"
-        access_key  = "<key>"              # only for api_key; omit for cloud identity
-
-        # custom_ca_bundle = "/path/to/ca.pem"   # for an internal gateway
+        akeyless_gateway_url  = "https://your-gateway/api/v2"
+        access_id             = "<p-...>"
+        access_key            = "<key>"
+        pki_cert_issuer_name  = "<issuer-name>"
     }
 }
 ```
 
+The `access_id` and `access_key` authenticate the plugin to Akeyless PKI.
+For cloud identity (aws_iam, gcp, azure), omit `access_key` and set the
+matching `access_type`. See the
+[Akeyless SPIRE Upstream Authority guide](https://docs.akeyless.io/docs/spire-upstream-authority)
+for the full field reference.
+
 The details that are easy to get wrong:
 
 - The plugin's `akeyless_gateway_url` must include the API path, for example
-  `https://your-gateway/api/v2`. The auth endpoint is `/api/v2/auth`; without
-  the path the call hits the wrong endpoint and fails.
-- For a self-signed or internal gateway CA, set the plugin's `custom_ca_bundle`
-  to that CA certificate file. The plugin verifies TLS strictly.
+  `https://your-gateway/api/v2`.
+- For an internal gateway CA, set the plugin's `custom_ca_bundle` to that CA
+  certificate file.
 - The PKI issuer's `allowed-uri-sans` must include the trust-domain root itself,
   `spiffe://<trust-domain>`, not only the wildcard `spiffe://<trust-domain>/*`.
-  SPIRE's CA carries the root URI SAN, and the wildcard alone does not match it.
-
-See the
-[Akeyless SPIRE Upstream Authority guide](https://docs.akeyless.io/docs/spire-upstream-authority)
-for the full setup, including PKI issuer creation.
+- Ensure SPIRE TTL values are lower than the PKI issuer's TTL.
 
 ## Bundle distribution
 
@@ -105,8 +94,7 @@ with an image or label selector.
 
 > [!WARNING]
 > Never set `insecure_bootstrap = true` against a production trust domain. The
-> demo sets it because the server's self-signed CA only exists after first run
-> and there is no secure channel yet. An attacker who intercepts that first
+> demo sets it because the agent has no pre-shared server bundle on first
 > connection could substitute their own server. In production, distribute the
 > server bundle to the agent out of band and remove the flag, so the agent
 > authenticates the server from the start.

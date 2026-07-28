@@ -77,7 +77,7 @@ every registration and role binding.
 ### Separate environments with separate trust domains
 
 The cleanest isolation is one trust domain per environment that must not trust
-another. An SVID minted in dev then cannot authenticate in production, because
+another. An SVID issued in dev then cannot authenticate in production, because
 the domain, the JWKS Akeyless holds, and the role binding all differ.
 
 | Environment | Trust domain | Why separate |
@@ -195,7 +195,7 @@ of its SPIFFE ID. SPIRE supports two forms.
 | JWT-SVID | Signed JSON Web Token | Bearer authentication to a service such as Akeyless | Yes. The .NET app trades one for an Akeyless token. |
 | X.509-SVID | Certificate plus private key | Mutual TLS between two workloads | Yes, in the optional [mTLS demo](09-x509-mtls.md). |
 
-A JWT-SVID is short-lived, measured in minutes, and minted fresh on every run.
+A JWT-SVID is short-lived, measured in minutes, and issued fresh on every run.
 Akeyless validates it against a public key set, which is why the secret-reading
 path uses JWT-SVIDs. X.509-SVIDs serve a different problem, workload-to-workload
 mTLS, shown separately in guide 09.
@@ -206,7 +206,7 @@ Every JWT-SVID carries an audience claim naming who the token is for. The demo
 audience is `akeyless`. The workload asks for an SVID scoped to that audience,
 and Akeyless requires it.
 
-Audience is a replay defense. A token minted for Akeyless cannot be replayed
+Audience is a replay defense. A token issued for Akeyless cannot be replayed
 against a system that expects a different audience. A workload that talks to
 several downstreams requests a different audience each time:
 

@@ -30,13 +30,13 @@ leave it alone for now. What each value means is in
 ```
 
 The script ends with `==> SPIRE is up.` It starts the spire-server, waits for
-it to be healthy, mints a one-time join token, starts the host container which
+it to be healthy, creates a one-time join token, starts the host container which
 runs the spire-agent, waits for the Workload API socket, registers the
 workload, and waits until the agent is issuing SVIDs. The host image is pulled
 pre-built from GHCR, so you only build from source if you change the app.
 
 Always start with `./spire/up.sh`, never with plain `docker compose up`. The
-compose file leaves `JOIN_TOKEN` empty on purpose, and `up.sh` is what mints
+compose file leaves `JOIN_TOKEN` empty on purpose, and `up.sh` is what creates
 the token and registers the workload. If you start with `docker compose up`,
 the host container exits immediately with `JOIN_TOKEN is required`.
 
@@ -54,7 +54,7 @@ access id to `spire/.data/akeyless-access-id` for the app to read.
 
 This step is safe to re-run. It recreates the auth method with the current
 bundle every time, which matters after any change to the trust root. If you
-ever run `spire/down.sh` and bring the stack back up, the server mints a fresh
+ever run `spire/down.sh` and bring the stack back up, the server creates a fresh
 root, so you must re-run this step or authentication will fail with a stale
 JWKS.
 
@@ -101,7 +101,7 @@ it in Akeyless directly.
 ```
 
 This stops the containers and removes their volumes. The dev CA and keys lived
-in those volumes, so the next `up.sh` mints a fresh trust root. After a fresh
+in those volumes, so the next `up.sh` creates a fresh trust root. After a fresh
 root you must re-run `./bootstrap/setup-akeyless.sh`, because the auth method
 will hold the old, stale JWKS.
 

@@ -115,7 +115,7 @@ JWKS for the auth method. `setup-akeyless.sh` does this for you.
 
 ### `auth` fails after recreating the SPIRE stack with `401 AuthenticationFailed`
 
-**Cause.** Removing the server volume minted a fresh trust root, so the auth
+**Cause.** Removing the server volume created a fresh trust root, so the auth
 method holds a stale JWKS from the old root.
 
 **Fix.** Re-run `./bootstrap/setup-akeyless.sh`. It re-dumps the bundle from
@@ -149,7 +149,7 @@ then run the app again.
 **Cause.** The short-lived token in `AKEYLESS_TOKEN` expired. Tokens are
 short-lived by design.
 
-**Fix.** Re-mint a token and update `AKEYLESS_TOKEN` in `.env`.
+**Fix.** Create a new token and update `AKEYLESS_TOKEN` in `.env`.
 
 ## TLS and certificate errors
 
@@ -191,7 +191,7 @@ does not match the bare root.
 parse time, even services you have not started yet. The compose file leaves
 `JOIN_TOKEN` empty on purpose, and enforces its presence at runtime.
 
-**Fix.** Always start with `./spire/up.sh`, which mints the token and writes it
+**Fix.** Always start with `./spire/up.sh`, which creates the token and writes it
 to `.env`.
 
 ### A bind mount resolves against the project directory instead of the compose file

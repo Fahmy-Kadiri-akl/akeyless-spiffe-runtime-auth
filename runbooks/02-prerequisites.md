@@ -50,7 +50,7 @@ curl -s -X POST "$AKEYLESS_GATEWAY/api/v2/get-auth-method" \
 A valid token prints an error about the method not existing, because
 `/does-not-matter` does not exist. That is the expected result. An
 authentication error instead means the token itself is invalid or expired, and
-you should re-mint it.
+you should create a new one.
 
 ## Required Akeyless permissions
 
@@ -70,7 +70,8 @@ covers the full model.
 | Identity | What it needs |
 |---|---|
 | Workload | An `item-rule` granting `read` and `list` on the secret folder, bound to its SPIFFE ID. Nothing else. |
-| Bootstrap | `auth-method-rule` with `create`, `update`, `delete`, `read`; `role-rule` with `create`, `update`; `item-rule` with `create` on the configured paths. A full admin also works. |
+| Bootstrap | `auth-method-rule` with `create`, `update`, `delete`, `read`; `role-rule` with `create`, `update`; `item-rule` with `create` on the configured paths including the PKI issuer. A full admin also works. |
+| UpstreamAuthority plugin | `item-rule` with `read` and `update` on the PKI issuer path (`UPSTREAM_CERT_ISSUER`); `item-rule` with `read`, `create`, `update`, and `list` on the JWT keys item (`UPSTREAM_CERT_ISSUER-jwt-keys` by default). |
 
 Akeyless does not let a role grant a capability its caller lacks. The bootstrap
 grants the workload `read` and `list` on the secret folder, so the bootstrap
@@ -83,7 +84,82 @@ associate it with an API-key auth method you control, and grant it:
 - `auth-method-rule` on the auth method: `create`, `update`, `delete`, `read`
 - `role-rule` on the role: `create`, `update`
 
-Then mint your `AKEYLESS_TOKEN` from an identity that holds this role.
+Then create your `AKEYLESS_TOKEN` from an identity that holds this role.
+
+## Creating the UpstreamAuthority credentials
+
+The UpstreamAuthority plugin needs its own persistent auth method to sign the
+trust root through Akeyless PKI. This is the one place in the architecture
+where a non-SPIFFE credential is required: the plugin bootstraps the trust
+root, so it cannot use an SVID.
+
+### Choosing an access type
+
+| `access_type` | Credential on the spire-server | Blast radius |
+|---|---|---|
+| `api_key` | a static access-key file | scoped to the PKI issuer and JWT keys paths only |
+| `aws_iam` | none; uses the VM's IAM role | the IAM role's permissions |
+| `gcp` | none; uses the service account | the service account's permissions |
+| `azure` | none; uses managed identity | the managed identity's permissions |
+| `universal_identity` | a rotating UID token | scoped to the UID role |
+
+`api_key` is the simplest and works on any host. `aws_iam`, `gcp`, and `azure`
+are preferred for cloud deployments because they eliminate the static key
+entirely. `universal_identity` auto-rotates the credential on any host.
+
+### Risk management
+
+The plugin credential is not ideal, but the risk is managed three ways:
+
+1. **Scope**: the RBAC covers only the PKI issuer and JWT keys paths, not the
+   whole account. A compromised key can sign certs but cannot read arbitrary
+   secrets.
+2. **Location**: the credential lives only on the spire-server (one tightly
+   controlled host), never on workload hosts. Workloads still have zero
+   credentials.
+3. **Elimination**: on cloud infrastructure, use cloud identity to remove the
+   static key entirely.
+
+### Creating the auth method (api_key)
+
+Replace `<admin-token>` with a token that has admin or equivalent permissions.
+
+```bash
+GATEWAY=https://your-account.akeyless.cloud
+
+# 1. Create an API-key auth method for the plugin
+RESP=$(curl -s -X POST "$GATEWAY/api/v2/create-auth-method-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"/spiffe/demo/upstream-auth","token":"<admin-token>"}')
+UPSTREAM_ACCESS_ID=$(echo "$RESP" | jq -r .access_id)
+UPSTREAM_ACCESS_KEY=$(echo "$RESP" | jq -r .access_key)
+echo "access_id=$UPSTREAM_ACCESS_ID"
+
+# 2. Create a role for the plugin
+curl -s -X POST "$GATEWAY/api/v2/create-role" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"/spiffe/demo/upstream-role","token":"<admin-token>"}'
+
+# 3. Grant read + update on the PKI issuer
+curl -s -X POST "$GATEWAY/api/v2/set-role-rule" \
+  -H "Content-Type: application/json" \
+  -d '{"role-name":"/spiffe/demo/upstream-role","path":"/spiffe/demo/pki","capability":["read","update"],"token":"<admin-token>"}'
+
+# 4. Grant read + create + update + list on the JWT keys item
+curl -s -X POST "$GATEWAY/api/v2/set-role-rule" \
+  -H "Content-Type: application/json" \
+  -d '{"role-name":"/spiffe/demo/upstream-role","path":"/spiffe/demo/pki-jwt-keys","capability":["read","create","update","list"],"token":"<admin-token>"}'
+
+# 5. Associate the role with the auth method
+curl -s -X POST "$GATEWAY/api/v2/assoc-role-am" \
+  -H "Content-Type: application/json" \
+  -d '{"role-name":"/spiffe/demo/upstream-role","am-name":"/spiffe/demo/upstream-auth","token":"<admin-token>"}'
+```
+
+Put the `access_id` and `access_key` from step 1 into `.env` as
+`UPSTREAM_ACCESS_ID` and `UPSTREAM_ACCESS_KEY`. For cloud identity, create the
+auth method with the matching `access_type` instead of api-key, and set
+`UPSTREAM_ACCESS_KEY` to empty.
 
 ## Python
 

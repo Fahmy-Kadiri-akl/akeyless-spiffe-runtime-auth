@@ -16,19 +16,40 @@ set -a; . ./.env; set +a
 
 : "${SPIFFE_TRUST_DOMAIN:=example.org}"
 : "${JWT_AUDIENCE:=akeyless}"
-: "${CA_TTL:=24h}"
 : "${X509_SVID_TTL:=1h}"
 : "${JWT_SVID_TTL:=5m}"
+: "${UPSTREAM_ACCESS_ID:?UPSTREAM_ACCESS_ID is required. Set the upstream authority access id in .env.}"
+: "${UPSTREAM_ACCESS_KEY:=}"
+UPSTREAM_CERT_ISSUER="${UPSTREAM_CERT_ISSUER:-/spiffe/demo/pki}"
+GATEWAY="${AKEYLESS_GATEWAY%/}"
 
-# Render the trust domain into runtime copies of the SPIRE configs. The
-# canonical files in spire/ default to example.org; SPIFFE_TRUST_DOMAIN in .env
-# overrides it end to end. Lifetimes default to SPIRE values and can be
-# overridden in .env (CA_TTL, X509_SVID_TTL, JWT_SVID_TTL).
 mkdir -p "$ROOT/spire/.data"
+
+# Create the PKI Certificate Issuer (idempotent).
+echo "==> Creating PKI Certificate Issuer $UPSTREAM_CERT_ISSUER ..."
+if curl -fsS -X POST "$GATEWAY/api/v2/get-pki-cert-issuer" \
+  -H "Content-Type: application/json" \
+  -d "$(jq -cn --arg n "$UPSTREAM_CERT_ISSUER" --arg t "$AKEYLESS_TOKEN" '{name:$n, token:$t}')" >/dev/null 2>&1; then
+  echo "    (issuer already exists)"
+else
+  curl -fsS -X POST "$GATEWAY/api/v2/create-pki-cert-issuer" \
+    -H "Content-Type: application/json" \
+    -d "$(jq -cn \
+      --arg name "$UPSTREAM_CERT_ISSUER" \
+      --arg ttl "720h" \
+      --arg sans "spiffe://$SPIFFE_TRUST_DOMAIN,spiffe://$SPIFFE_TRUST_DOMAIN/*" \
+      --arg t "$AKEYLESS_TOKEN" \
+      '{name:$name, ttl:$ttl, "allowed-uri-sans":$sans, token:$t}')" >/dev/null
+  echo "    created."
+fi
+
 sed -e "s|example.org|$SPIFFE_TRUST_DOMAIN|g" \
-    -e "s|@@CA_TTL@@|$CA_TTL|" \
     -e "s|@@X509_SVID_TTL@@|$X509_SVID_TTL|" \
     -e "s|@@JWT_SVID_TTL@@|$JWT_SVID_TTL|" \
+    -e "s|@@GATEWAY_FULL@@|$GATEWAY|" \
+    -e "s|@@UPSTREAM_ACCESS_ID@@|$UPSTREAM_ACCESS_ID|" \
+    -e "s|@@UPSTREAM_ACCESS_KEY@@|$UPSTREAM_ACCESS_KEY|" \
+    -e "s|@@UPSTREAM_CERT_ISSUER@@|$UPSTREAM_CERT_ISSUER|" \
     "$ROOT/spire/server.conf" > "$ROOT/spire/.data/server.conf"
 sed "s|example.org|$SPIFFE_TRUST_DOMAIN|g" "$ROOT/spire/agent.conf" > "$ROOT/spire/.data/agent.conf"
 
