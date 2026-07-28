@@ -7,8 +7,8 @@
 #
 # Idempotent and always-fresh: it recreates the auth method with the current
 # SPIRE bundle on every run, so it is safe to re-run after a new trust root
-# (e.g. after spire/down.sh). Requires the Akeyless CLI and python3+cryptography
-# on the PATH, and AKEYLESS_TOKEN (a short-lived temp token) in .env.
+# (e.g. after spire/down.sh). Requires curl, jq, and python3+cryptography on
+# the PATH, and AKEYLESS_TOKEN (a short-lived token) in .env.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -20,18 +20,18 @@ set -a; [ -f "$ROOT/.env" ] && . "$ROOT/.env"; set +a
 
 DC="docker compose --project-directory $ROOT -f spire/docker-compose.yml"
 
+# --- required ---
+: "${AKEYLESS_GATEWAY:?AKEYLESS_GATEWAY is required. Set it in .env.}"
+: "${AKEYLESS_TOKEN:?AKEYLESS_TOKEN is required. Mint a short-lived token and set it in .env. It expires on its own.}"
+GATEWAY="${AKEYLESS_GATEWAY%/}"
+
 # --- config (env-overridable; defaults match spire/spire.env.example) ---
 WORKLOAD_SPIFFE_ID="${WORKLOAD_SPIFFE_ID:-spiffe://example.org/ns/default/sa/secret-consumer}"
 AUDIENCE="${JWT_AUDIENCE:-akeyless}"
 AUTH_METHOD="${AKEYLESS_AUTH_METHOD:-/spiffe/demo/auth}"
 ROLE="${AKEYLESS_ROLE:-/spiffe/demo/reader}"
 SECRET="${AKEYLESS_SECRET:-/spiffe/demo/db-password}"
-# The demo secret lives only in Akeyless. The bootstrap generates an ephemeral
-# payload and writes it there so a first-time user has something to read back.
-# Nothing is stored in .env. In production you provision your own secret at this
-# path and the bootstrap leaves it alone.
 DEMO_SECRET_VALUE="spiffe-demo-$(date +%s)"
-# Rule path covers the secret's folder, so a custom SECRET path still works.
 RULE_PATH="$(dirname "$SECRET")"/*
 
 # Files written for the host container (mounted at /run/spire-data).
@@ -40,29 +40,26 @@ JWKS_FILE="${SPIRE_BUNDLE_JWKS:-$ROOT/spire/.data/bundle.jwks}"
 ACCESS_ID_FILE="$ROOT/spire/.data/akeyless-access-id"
 JWKS_URI="${SPIRE_BUNDLE_ENDPOINT:-}"
 
-# Authenticate with a short-lived temp token (AKEYLESS_TOKEN), not a long-lived
-# API key. Mint one out-of-band and let it expire on its own, for example:
-#   akeyless auth --access-id <p-...> --access-type access_key \
-#     --access-key <key> --gateway-url <gw>
-# or via SAML/OIDC, then set AKEYLESS_TOKEN to the printed t-... value. The token
-# needs the capabilities in "Required Akeyless permissions" in the README.
-# Token is the only supported method. A missing token is a hard failure.
-: "${AKEYLESS_TOKEN:?AKEYLESS_TOKEN is required. Mint a temp token with 'akeyless auth' and put it in .env. It expires on its own.}"
-AUTH_FLAG=(--token "$AKEYLESS_TOKEN")
-# Do not pass --gateway-url: auth-method create oauth2 rejects it together with
-# an inline --jwks-json-data JWKS. The token and the profile both carry their own
-# gateway, and --token routes itself.
-akl() { akeyless "$@" "${AUTH_FLAG[@]}"; }
+# Helper: call an Akeyless REST endpoint. Args: endpoint, json-body.
+api() {
+  curl -fsS -X POST "$GATEWAY/api/v2/$1" \
+    -H "Content-Type: application/json" \
+    -d "$2" 2>/dev/null
+}
+# Same but suppress errors (for idempotent create-if-absent calls).
+api_quiet() {
+  curl -sS -X POST "$GATEWAY/api/v2/$1" \
+    -H "Content-Type: application/json" \
+    -d "$2" 2>/dev/null || true
+}
 
 mkdir -p "$(dirname "$RAW_BUNDLE")"
 
 # --- 1. obtain the SPIRE bundle as a standard JWKS ---
 if [ -n "$JWKS_URI" ]; then
   echo "[setup] using public bundle endpoint: $JWKS_URI"
-  BUNDLE_ARGS=(--jwks-uri "$JWKS_URI")
+  USE_URI=true
 else
-  # Always re-dump from the running server. The trust root changes whenever the
-  # server volume is removed, so a cached bundle would reject new SVIDs.
   echo "[setup] dumping SPIRE trust bundle from the running server ..."
   if ! $DC exec -T spire-server /opt/spire/bin/spire-server bundle show \
         -format spiffe -output json \
@@ -77,58 +74,76 @@ else
     exit 1
   fi
   JWKS_B64="$(base64 -w0 "$JWKS_FILE" 2>/dev/null || base64 < "$JWKS_FILE" | tr -d '\n')"
-  BUNDLE_ARGS=(--jwks-json-data "$JWKS_B64")
+  USE_URI=false
 fi
 
 # --- 2. (re)create the OAuth2/JWT auth method with the current bundle ---
-# Delete first so a stale bundle from a previous trust root is replaced. The
-# access id changes on recreate; we publish it below for the app to read.
-if akl get-auth-method --name "$AUTH_METHOD" >/dev/null 2>&1; then
+# Delete first so a stale bundle from a previous trust root is replaced.
+if api get-auth-method "$(jq -cn --arg n "$AUTH_METHOD" --arg t "$AKEYLESS_TOKEN" \
+  '{name:$n, token:$t}')" >/dev/null 2>&1; then
   echo "[setup] refreshing auth method $AUTH_METHOD (stale JWKS would reject new SVIDs) ..."
-  akl auth-method delete --name "$AUTH_METHOD" >/dev/null
+  api delete-auth-method "$(jq -cn --arg n "$AUTH_METHOD" --arg t "$AKEYLESS_TOKEN" \
+    '{name:$n, token:$t}')" >/dev/null
 fi
+
 echo "[setup] creating auth method $AUTH_METHOD ..."
-akl auth-method create oauth2 \
-  --name "$AUTH_METHOD" \
-  --unique-identifier sub \
-  --audience "$AUDIENCE" \
-  "${BUNDLE_ARGS[@]}"
+if [ "$USE_URI" = true ]; then
+  BODY=$(jq -cn \
+    --arg name "$AUTH_METHOD" \
+    --arg uid  "sub" \
+    --arg aud  "$AUDIENCE" \
+    --arg uri  "$JWKS_URI" \
+    --arg t    "$AKEYLESS_TOKEN" \
+    '{name:$name, "unique-identifier":$uid, audience:$aud, "jwks-uri":$uri, token:$t}')
+else
+  BODY=$(jq -cn \
+    --arg name "$AUTH_METHOD" \
+    --arg uid  "sub" \
+    --arg aud  "$AUDIENCE" \
+    --arg jwks "$JWKS_B64" \
+    --arg t    "$AKEYLESS_TOKEN" \
+    '{name:$name, "unique-identifier":$uid, audience:$aud, "jwks-json-data":$jwks, token:$t}')
+fi
+api create-auth-method-oauth2 "$BODY" >/dev/null
 
 # --- 3. least-privilege role bound to this workload's SPIFFE ID ---
 echo "[setup] creating role $ROLE ..."
-akl create-role --name "$ROLE" >/dev/null 2>&1 || echo "[setup] (role already exists; reusing)"
+api_quiet create-role "$(jq -cn --arg n "$ROLE" --arg t "$AKEYLESS_TOKEN" \
+  '{name:$n, token:$t}')"
 
-akl assoc-role-am \
-  --role-name "$ROLE" \
-  --am-name "$AUTH_METHOD" \
-  --case-sensitive sub \
-  --sub-claims "sub=$WORKLOAD_SPIFFE_ID" \
-  || echo "[setup] (association may already exist; continuing)"
+echo "[setup] associating role with auth method ..."
+api_quiet assoc-role-am "$(jq -cn \
+  --arg rn "$ROLE" \
+  --arg am "$AUTH_METHOD" \
+  --arg sc "sub=$WORKLOAD_SPIFFE_ID" \
+  --arg t  "$AKEYLESS_TOKEN" \
+  '{"role-name":$rn, "am-name":$am, "case-sensitive":"sub", "sub-claims":$sc, token:$t}')"
 
-akl set-role-rule \
-  --role-name "$ROLE" \
-  --path "$RULE_PATH" \
-  --capability read \
-  --capability list
+echo "[setup] granting read + list on $RULE_PATH ..."
+api set-role-rule "$(jq -cn \
+  --arg rn "$ROLE" \
+  --arg p  "$RULE_PATH" \
+  --arg t  "$AKEYLESS_TOKEN" \
+  '{"role-name":$rn, path:$p, capability:["read","list"], token:$t}')" >/dev/null
 
 # --- 4. demo secret ---
 echo "[setup] creating demo secret $SECRET ..."
-akl create-secret --name "$SECRET" --value "$DEMO_SECRET_VALUE" \
-  >/dev/null 2>&1 || echo "[setup] (secret already exists; reusing)"
+api_quiet create-secret "$(jq -cn \
+  --arg n "$SECRET" \
+  --arg v  "$DEMO_SECRET_VALUE" \
+  --arg t  "$AKEYLESS_TOKEN" \
+  '{name:$n, value:$v, token:$t}')"
 
 # --- 5. publish the auth method's access id for the app ---
-# `akeyless auth` takes the access id, not the method name. Write it to a file
-# the host container reads at runtime (mounted at /run/spire-data), so the app
-# works regardless of whether the container started before this script ran.
-AM_ACCESS_ID="$(akl get-auth-method --name "$AUTH_METHOD" 2>/dev/null \
-  | grep -oE '"auth_method_access_id"[^"]*"[^"]+"' | grep -oE 'p-[a-z0-9]+' | head -1)"
+RESP="$(api get-auth-method "$(jq -cn --arg n "$AUTH_METHOD" --arg t "$AKEYLESS_TOKEN" \
+  '{name:$n, token:$t}')")"
+AM_ACCESS_ID="$(echo "$RESP" | jq -r '."auth_method_access_id" // .auth_method_access_id // empty' 2>/dev/null)"
 if [ -z "$AM_ACCESS_ID" ]; then
   echo "[setup] WARNING: could not read the auth method access id" >&2
   exit 1
 fi
 printf '%s\n' "$AM_ACCESS_ID" > "$ACCESS_ID_FILE"
 chmod 600 "$ACCESS_ID_FILE"
-# Also keep .env in sync for humans reading it.
 if grep -q '^AKEYLESS_ACCESS_ID=' "$ROOT/.env" 2>/dev/null; then
   sed -i.bak "s|^AKEYLESS_ACCESS_ID=.*|AKEYLESS_ACCESS_ID=$AM_ACCESS_ID|" "$ROOT/.env" && rm -f "$ROOT/.env.bak"
 else

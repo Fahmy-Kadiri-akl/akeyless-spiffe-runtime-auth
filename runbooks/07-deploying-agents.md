@@ -120,8 +120,7 @@ config file on the host. `SPIRE_SERVER_ADDRESS`, `SPIFFE_TRUST_DOMAIN`, and
 attests the node to the server once. After that, the agent persists its own
 SVID and reuses it across restarts.
 
-`agent/Dockerfile.agent` and `agent/agent-entrypoint.sh` define the image. The
-publish workflow rebuilds it on every change.
+`agent/Dockerfile.agent` and `agent/agent-entrypoint.sh` define the image. It is rebuilt whenever the agent source changes.
 
 ## Notes for production
 
