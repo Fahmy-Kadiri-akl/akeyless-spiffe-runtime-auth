@@ -53,6 +53,14 @@ Akeyless rejects every SVID until you re-run `bootstrap/setup-akeyless.sh`. In p
 at runtime and tracks rotation automatically, so authentication survives
 key rotation with no manual re-bootstrap.
 
+The rotation timeline, end to end:
+
+1. SPIRE rotates its JWT signing key every `CA_TTL`, default 24 hours.
+2. Inline JWKS: the auth method still holds the old key, so new SVIDs are
+   rejected until you re-run `bootstrap/setup-akeyless.sh`.
+3. Bundle endpoint: Akeyless fetches the new bundle on its own, and
+   verification keeps working across the rotation with no re-bootstrap.
+
 ## Workload selectors
 
 Narrowing the selector shrinks the blast radius of a compromised process to

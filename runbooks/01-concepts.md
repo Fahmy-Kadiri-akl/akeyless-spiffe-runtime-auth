@@ -17,6 +17,13 @@ receives a token good for minutes, uses it, and lets it expire. Nothing secret
 is written to disk, so there is nothing to steal. SPIFFE and SPIRE provide the
 identity; Akeyless holds the secret.
 
+A concrete before and after:
+
+| | Credential | Lifetime of a theft |
+|---|---|---|
+| Before | API key in `/etc/akeyless/key` | as long as the key is valid; no trace |
+| After | a JWT-SVID fetched per call | minutes, then the SVID is dead and a replay is logged |
+
 ## The cast
 
 | Participant | Role | In this repo |
@@ -137,10 +144,20 @@ two layers, and each has a demo form and a production form.
 | Node attestation | Once, when an agent first contacts the server | one-time join token | cloud IID, Kubernetes service account token, or mTLS with a pre-shared bundle |
 | Workload attestation | Every SVID fetch | selector `unix:uid:0` | a dedicated UID, the executable path, or a Docker image or label selector |
 
-The workload-attestation selector is the real gate on who can be this workload.
-The demo uses `unix:uid:0`, which is broad: any root process on the host
-qualifies. Narrow it in production so only the intended process can obtain the
-identity.
+The workload-attestation selector is the real gate on who can be this workload,
+and it is the blast radius when a host is compromised. Pick it by how the
+workload runs:
+
+| Workload runs as | Strong selector |
+|---|---|
+| a systemd service on a VM | `unix:uid:<dedicated uid>` for that service |
+| a Kubernetes pod | the Kubernetes workload attestor on a service account |
+| a Docker container | the Docker attestor on the image digest or a label |
+| one app on a locked-down host | `unix:uid` combined with `unix:path` |
+
+The demo uses `unix:uid:0`, which makes every root process the workload. A
+dedicated UID makes only that one process the workload, so a compromised host
+exposes one identity instead of all of them.
 
 ## SVIDs
 
@@ -164,10 +181,18 @@ audience is `akeyless`. The workload asks for an SVID scoped to that audience,
 and Akeyless requires it.
 
 Audience is a replay defense. A token minted for Akeyless cannot be replayed
-against a system that expects a different audience. Keep audiences specific in
-production: if a workload talks to several downstreams, give each its own
-audience and request the matching one per call, so a token stolen from one path
-cannot be used on another.
+against a system that expects a different audience. A workload that talks to
+several downstreams requests a different audience each time:
+
+| Call | Audience requested | Token honored by |
+|---|---|---|
+| read a secret | `akeyless` | Akeyless |
+| read a cache | `cache` | the cache |
+| enqueue a job | `queue` | the queue |
+
+A token swiped from the cache path carries the `cache` audience, so presenting
+it to Akeyless is rejected. One audience per downstream keeps a leak on one path
+from becoming a leak on every path.
 
 ## The Workload API socket
 

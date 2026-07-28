@@ -41,6 +41,18 @@ agent across hosts.
 - The Workload API is a Unix domain socket. The workload connects to an agent
   on the same host, not over the network.
 
+A concrete fleet: one central server, three workload hosts, each running its own
+app beside a local agent.
+
+| Host | App | Registered as |
+|---|---|---|
+| host-a | billing | `spiffe://prod.payments.acme.internal/sa/billing` |
+| host-b | payouts | `spiffe://prod.payments.acme.internal/sa/payouts` |
+| host-c | recon | `spiffe://prod.payments.acme.internal/sa/recon` |
+
+Each app authenticates to Akeyless on its own, through its own agent. Adding a
+host means installing an agent on it and registering its workload on the server.
+
 An application on host B therefore cannot fetch an SVID from an agent on host
 A. Run an agent on every host that runs a workload.
 

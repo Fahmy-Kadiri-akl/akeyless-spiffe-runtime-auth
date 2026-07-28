@@ -51,7 +51,9 @@ akeyless auth --access-id <p-...> --access-type access_key \
 ```
 
 Copy the printed `Token: t-...` value into `AKEYLESS_TOKEN` in `.env`. The token
-expires on its own, so no permanent credential lives in the repo. It needs the
+expires on its own. The use case is one-time admin wiring: you run the bootstrap
+once to create the auth method, role, and secret, then let the token die so no
+permanent admin credential survives in the repo or in CI history. It needs the
 capabilities listed under "Required Akeyless permissions" below.
 
 ### Check that the token works
