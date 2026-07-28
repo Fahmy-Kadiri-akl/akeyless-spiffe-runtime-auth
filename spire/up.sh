@@ -18,11 +18,11 @@ set -a; . ./.env; set +a
 : "${JWT_AUDIENCE:=akeyless}"
 : "${X509_SVID_TTL:=1h}"
 : "${JWT_SVID_TTL:=5m}"
-: "${UPSTREAM_ACCESS_ID:?UPSTREAM_ACCESS_ID is required. Set the upstream authority access id in .env.}"
-: "${UPSTREAM_ACCESS_KEY:=}"
+: "${ACCESS_ID:?ACCESS_ID is required. Set the upstream authority access id in .env.}"
+: "${ACCESS_KEY:=}"
 UPSTREAM_CERT_ISSUER="${UPSTREAM_CERT_ISSUER:-/spiffe/demo/pki}"
-: "${SVID_STORE_ACCESS_ID:?SVID_STORE_ACCESS_ID is required. Set the Secret Manager access id in .env.}"
-: "${SVID_STORE_ACCESS_KEY:=}"
+: "${ACCESS_ID:?ACCESS_ID is required. Set the Secret Manager access id in .env.}"
+: "${ACCESS_KEY:=}"
 SVID_STORE_TARGET_FOLDER="${SVID_STORE_TARGET_FOLDER:-/spiffe/demo/svid}"
 GATEWAY="${AKEYLESS_GATEWAY%/}"
 
@@ -50,14 +50,14 @@ sed -e "s|example.org|$SPIFFE_TRUST_DOMAIN|g" \
     -e "s|@@X509_SVID_TTL@@|$X509_SVID_TTL|" \
     -e "s|@@JWT_SVID_TTL@@|$JWT_SVID_TTL|" \
     -e "s|@@GATEWAY_FULL@@|$GATEWAY|" \
-    -e "s|@@UPSTREAM_ACCESS_ID@@|$UPSTREAM_ACCESS_ID|" \
-    -e "s|@@UPSTREAM_ACCESS_KEY@@|$UPSTREAM_ACCESS_KEY|" \
+    -e "s|@@ACCESS_ID@@|$ACCESS_ID|" \
+    -e "s|@@ACCESS_KEY@@|$ACCESS_KEY|" \
     -e "s|@@UPSTREAM_CERT_ISSUER@@|$UPSTREAM_CERT_ISSUER|" \
     "$ROOT/spire/server.conf" > "$ROOT/spire/.data/server.conf"
 sed -e "s|example.org|$SPIFFE_TRUST_DOMAIN|g" \
     -e "s|@@GATEWAY_FULL@@|$GATEWAY|" \
-    -e "s|@@SVID_STORE_ACCESS_ID@@|$SVID_STORE_ACCESS_ID|" \
-    -e "s|@@SVID_STORE_ACCESS_KEY@@|$SVID_STORE_ACCESS_KEY|" \
+    -e "s|@@ACCESS_ID@@|$ACCESS_ID|" \
+    -e "s|@@ACCESS_KEY@@|$ACCESS_KEY|" \
     -e "s|@@SVID_STORE_TARGET_FOLDER@@|$SVID_STORE_TARGET_FOLDER|" \
     "$ROOT/spire/agent.conf" > "$ROOT/spire/.data/agent.conf"
 

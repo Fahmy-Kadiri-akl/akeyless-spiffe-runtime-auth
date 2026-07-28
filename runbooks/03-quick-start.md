@@ -22,7 +22,7 @@ UPSTREAM_ACCESS_KEY=<key>
 
 `UPSTREAM_ACCESS_ID` and `UPSTREAM_ACCESS_KEY` authenticate the UpstreamAuthority
 plugin to Akeyless PKI. [Create them
-first](02-prerequisites.md#creating-the-upstreamauthority-credentials) if you
+first](02-prerequisites.md#creating-the-plugin-credentials) if you
 have not already.
 
 The demo secret is generated in Akeyless by the bootstrap. Everything else

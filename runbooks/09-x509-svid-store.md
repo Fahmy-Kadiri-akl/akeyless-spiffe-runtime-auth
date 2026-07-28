@@ -52,7 +52,7 @@ as a secret in Akeyless.
 
 The Secret Manager plugin authenticates to Akeyless with its own credentials,
 separate from the workload and the bootstrap. See
-[Prerequisites](02-prerequisites.md#creating-the-upstreamauthority-credentials)
+[Prerequisites](02-prerequisites.md#creating-the-plugin-credentials)
 for the pattern; the Secret Manager auth method needs the same access-type
 options (api_key, aws_iam, gcp, azure).
 
