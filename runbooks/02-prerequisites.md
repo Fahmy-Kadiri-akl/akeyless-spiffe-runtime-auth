@@ -27,9 +27,12 @@ curl -fsSL -o akeyless https://akeyless-cli.s3.us-east-2.amazonaws.com/cli/lates
 chmod +x akeyless
 ```
 
-The CLI self-installs into `~/.akeyless/bin` on first run. You use this CLI
-only to mint a token and run the bootstrap. The CLI inside the container is for
-the app at runtime, and you do not manage it.
+The CLI self-installs into `~/.akeyless/bin` on first run. You use it on the
+admin host for two things: minting the short-lived bootstrap token, and running
+`bootstrap/setup-akeyless.sh`, which calls the CLI to create the auth method,
+role, and secret. The reference app does not use it. The app reaches Akeyless
+through the REST API over HTTPS, so there is no Akeyless CLI in the container
+and none needed at runtime.
 
 ## Your Akeyless gateway URL
 
@@ -51,7 +54,9 @@ akeyless auth --access-id <p-...> --access-type access_key \
 ```
 
 Copy the printed `Token: t-...` value into `AKEYLESS_TOKEN` in `.env`. The token
-expires on its own, so no permanent credential lives in the repo. It needs the
+expires on its own. The use case is one-time admin wiring: you run the bootstrap
+once to create the auth method, role, and secret, then let the token die so no
+permanent admin credential survives in the repo or in CI history. It needs the
 capabilities listed under "Required Akeyless permissions" below.
 
 ### Check that the token works
@@ -69,8 +74,14 @@ you should re-mint it.
 
 ## Required Akeyless permissions
 
-Two identities are involved. The **bootstrap** is an administrative identity
-used once. The **workload** is the runtime identity the bootstrap creates.
+Two identities touch a secret, with different jobs. The **bootstrap**
+provisions: it creates the auth method, the role, and the secret. The
+**workload** reads the secret at runtime, through the role bound to its SPIFFE
+ID. That SPIFFE ID is the one from your trust domain, so these capabilities map
+onto the identities in [Concepts](01-concepts.md) and the
+provisioning-versus-reading model in
+[Production](05-production.md#who-provisions-and-who-reads).
+
 Capabilities are `read`, `create`, `update`, `delete`, `list`, and `deny`. The
 rule types that matter here are `item-rule`, `auth-method-rule`, and
 `role-rule`. The [Akeyless RBAC guide](https://docs.akeyless.io/docs/rbac)

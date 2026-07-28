@@ -65,6 +65,12 @@ SPIRE configs so a change propagates end to end.
 The agent SVID lifetime is not exposed as a variable; it stays at SPIRE's one
 hour and is renewed by the agent.
 
+A tuning example. A captured JWT-SVID works until it expires, so the JWT TTL is
+the replay window. The default five minutes is a starting point. A service under
+stricter policy might set `JWT_SVID_TTL=2m` to halve that window, at the cost of
+more fetches. Shorten the JWT-SVID to tighten the theft window; keep `CA_TTL`
+long enough that key rotation is routine rather than frequent.
+
 When SPIRE rotates its JWT signing key on the CA cadence, the inline JWKS on the
 Akeyless auth method goes stale, and SVIDs are rejected until you re-run
 `bootstrap/setup-akeyless.sh`. Set `SPIRE_BUNDLE_ENDPOINT` to a public bundle
@@ -81,9 +87,14 @@ Paths in your Akeyless account that the bootstrap creates:
 | `AKEYLESS_SECRET` | `/spiffe/demo/db-password` | The demo secret path. The role rule is derived from this path's folder. |
 | `SPIRE_BUNDLE_ENDPOINT` | empty | Optional public JWKS URL. When set, Akeyless fetches the bundle at runtime instead of using the inline JWKS. |
 
-Scope these to your folder structure. For multiple environments, namespace them,
-for example `/spiffe/prod/auth`, `/spiffe/staging/auth`. See
-[Required Akeyless permissions](02-prerequisites.md#required-akeyless-permissions).
+Namespace these per environment so each bootstrap touches only its own objects:
+
+| Environment | Auth method | Role | Secret |
+|---|---|---|---|
+| prod | `/spiffe/prod/auth` | `/spiffe/prod/reader` | `/spiffe/prod/db-password` |
+| staging | `/spiffe/staging/auth` | `/spiffe/staging/reader` | `/spiffe/staging/db-password` |
+
+See [Required Akeyless permissions](02-prerequisites.md#required-akeyless-permissions).
 
 ## The demo secret lives in Akeyless, not in `.env`
 

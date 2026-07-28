@@ -53,6 +53,14 @@ Akeyless rejects every SVID until you re-run `bootstrap/setup-akeyless.sh`. In p
 at runtime and tracks rotation automatically, so authentication survives
 key rotation with no manual re-bootstrap.
 
+The rotation timeline, end to end:
+
+1. SPIRE rotates its JWT signing key every `CA_TTL`, default 24 hours.
+2. Inline JWKS: the auth method still holds the old key, so new SVIDs are
+   rejected until you re-run `bootstrap/setup-akeyless.sh`.
+3. Bundle endpoint: Akeyless fetches the new bundle on its own, and
+   verification keeps working across the rotation with no re-bootstrap.
+
 ## Workload selectors
 
 Narrowing the selector shrinks the blast radius of a compromised process to
@@ -109,22 +117,14 @@ spiffe://prod.payments.acme.internal/sa/billing
 spiffe://prod.search.acme.internal/sa/indexer
 ```
 
-#### One trust domain, many workloads: least privilege
+#### One trust domain, many workloads
 
-The point of running several workloads under one trust domain is least
-privilege. A payments unit has services that trust each other but need different
-secrets. They share the domain and differ by path, so each gets its own role
-binding:
-
-| Workload SPIFFE ID | Job | Secret it may read |
-|---|---|---|
-| `spiffe://prod.payments.acme.internal/sa/billing` | charge customers | `payments/stripe-key` |
-| `spiffe://prod.payments.acme.internal/sa/payouts` | pay merchants | `payments/bank-credential` |
-| `spiffe://prod.payments.acme.internal/sa/recon` | match invoices to payments | `payments/ledger` (read) |
-
-Akeyless matches the full SPIFFE ID, so a compromised `billing` workload cannot
-read `payouts`'s bank credential. The trust domain groups the services; the
-path distinguishes them and carries per-workload authorization.
+One trust domain hosts many workloads so each can have least-privilege access to
+a different secret. The canonical example, billing, payouts, and recon under one
+payments domain, is in
+[Concepts](01-concepts.md#separate-environments-with-separate-trust-domains).
+In Akeyless, bind each SPIFFE ID to its own role so a compromised workload
+reaches only its own secrets.
 
 The rare case where two domains must genuinely honor each other's identities
 uses SPIFFE federation, not a shared trust domain.
@@ -142,6 +142,48 @@ uses SPIFFE federation, not a shared trust domain.
   `AKEYLESS_ROLE`, and `AKEYLESS_SECRET` so each environment gets its own paths.
 - Run one server per trust domain. Stand it up once; changing the domain later
   rewrites every SPIFFE ID and breaks every registration and role binding.
+
+## Who provisions and who reads
+
+Two Akeyless identities sit around each secret, with different jobs and
+different capabilities. One stands the access up; the other uses it. The
+workload here is the same `billing` from the least-privilege table: its SPIFFE
+ID lives in the trust domain, and the role binds that exact ID.
+
+```mermaid
+flowchart LR
+  A["Administrator<br/>bootstrap token"] -->|"creates"| O["Akeyless<br/>auth method, role, secret"]
+  O -->|"role binds the<br/>workload SPIFFE ID"| W["Workload (billing)"]
+  W -->|"JWT-SVID, then token"| S["secret<br/>payments/stripe-key"]
+```
+
+Left to right: an administrator creates the auth method, the role, and the
+secret; the role binds the workload's SPIFFE ID and grants read on the secret
+folder; the workload presents its SVID, receives a token, and reads the secret.
+
+| Identity | Authenticates with | On the secret | On the auth method and role |
+|---|---|---|---|
+| the workload, by SPIFFE ID | JWT-SVID through the auth method | `read`, `list` | none |
+| the administrator | short-lived token or API key | `create`, `update`, `delete`, `read` | `create`, `update`, `delete`, `read` |
+
+The workload never creates or changes a secret. The administrator never receives
+the workload's SVID or token; it only configures the role that binds the
+workload's SPIFFE ID, then steps away.
+
+### Splitting the administrator
+
+In a larger organization the administrator itself can be split into two
+narrower identities, each with only what it needs:
+
+| Identity | Job | Capabilities |
+|---|---|---|
+| the platform team | manage auth methods and roles | `auth-method-rule` and `role-rule`: `create`, `update`, `delete`, `read` |
+| the application team | write and rotate the secret value | `item-rule`: `create`, `update`, `read` on the secret folder |
+
+The workload stays unchanged: a role bound to its SPIFFE ID with `read` and
+`list`, nothing more. Splitting the administrator only narrows who can change
+access and who can change secret values; it does not change what the workload
+can do.
 
 ## Security model and limits
 
