@@ -191,26 +191,54 @@ A compromised host is not stopped in real time: an attacker running code as the 
 ## Repository layout
 
 ```
-spire/                         dev SPIRE topology and orchestration
-  docker-compose.yml           spire-server and host services
-  server.conf                  trust domain, UpstreamAuthority config, lifetimes
-  agent.conf                   Workload API socket, bootstrap
-  Dockerfile.host              .NET 8 app + spire-agent + the Akeyless Secret Manager plugin
-  up.sh / down.sh              start and tear down the stack
-  register-workload.sh         register the workload by Unix UID
-  spire.env.example            template for .env
-bootstrap/                     one-time Akeyless wiring
-  setup-akeyless.sh            create auth method, role, demo secret
-  spiffe-bundle-to-jwks.py     convert the SPIRE bundle into a JWKS
-  verify-svid.sh               decode and validate a JWT-SVID
-agent/                         portable, app-agnostic SPIRE agent
-  Dockerfile.agent             slim agent image, no application
-  agent-entrypoint.sh          renders agent config from env, runs the agent
-  deploy-agent.sh              deploy the agent on a workload host
-app/                           .NET 8 reference workload
-  Program.cs                   fetch SVID, authenticate, read secret
-  SecretConsumer.csproj
-runbooks/                      beginner guides: concepts, setup, production, troubleshooting
+spire/                             SPIRE topology and orchestration
+│
+├── docker-compose.yml             spire-server and host services
+├── Dockerfile.server              spire-server + Akeyless UpstreamAuthority plugin
+├── Dockerfile.host                spire-agent + Secret Manager plugin + .NET app
+├── server.conf                    trust domain, UpstreamAuthority, SVID lifetimes
+├── agent.conf                     Workload API socket, SVIDStore plugin, bootstrap
+├── host-entrypoint.sh             starts the agent, waits for the Workload API
+├── up.sh                          start the stack, create PKI issuer, register workloads
+├── down.sh                        tear down the stack
+├── register-workload.sh           register the JWT-SVID workload by Unix UID
+└── spire.env.example              template for .env
+
+bootstrap/                         one-time Akeyless wiring (curl, no CLI)
+│
+├── setup-akeyless.sh              create auth method, role, demo secret
+├── spiffe-bundle-to-jwks.py       convert the SPIRE bundle into a JWKS
+└── verify-svid.sh                 decode and validate a JWT-SVID
+
+agent/                             portable, app-agnostic SPIRE agent image
+│
+├── Dockerfile.agent               slim agent image, no application
+├── agent.conf                     agent config template (env-rendered)
+├── agent-entrypoint.sh            renders agent config from env, runs the agent
+└── deploy-agent.sh                deploy the agent on a workload host
+
+app/                               .NET 8 reference workload (JWT-SVID path)
+│
+├── Program.cs                     fetch SVID, authenticate, read secret
+└── SecretConsumer.csproj
+
+runbooks/                          guides 01-11: concepts through migration
+│
+├── README.md                      reading order and index
+├── 01-concepts.md                 SPIFFE, SPIRE, SVIDs, trust domains
+├── 02-prerequisites.md            environment, permissions, plugin credentials
+├── 03-quick-start.md              get a secret end to end on one host
+├── 04-wiring-akeyless.md          what the bootstrap does and why
+├── 05-configuration.md            every .env value with production meaning
+├── 06-production.md               trust root, selectors, environments
+├── 07-deploying-agents.md         agent on each workload host
+├── 08-troubleshooting.md          failure modes with causes and fixes
+├── 09-x509-svid-store.md          X.509-SVID via Akeyless Secret Manager
+├── 10-operations.md               monitoring, alerting, health checks
+└── 11-migration.md                move from on-disk API key to SPIFFE
+
+.github/workflows/
+└── publish-image.yml              build and publish host + agent images to GHCR
 ```
 
 ## License
