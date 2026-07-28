@@ -117,22 +117,14 @@ spiffe://prod.payments.acme.internal/sa/billing
 spiffe://prod.search.acme.internal/sa/indexer
 ```
 
-#### One trust domain, many workloads: least privilege
+#### One trust domain, many workloads
 
-The point of running several workloads under one trust domain is least
-privilege. A payments unit has services that trust each other but need different
-secrets. They share the domain and differ by path, so each gets its own role
-binding:
-
-| Workload SPIFFE ID | Job | Secret it may read |
-|---|---|---|
-| `spiffe://prod.payments.acme.internal/sa/billing` | charge customers | `payments/stripe-key` |
-| `spiffe://prod.payments.acme.internal/sa/payouts` | pay merchants | `payments/bank-credential` |
-| `spiffe://prod.payments.acme.internal/sa/recon` | match invoices to payments | `payments/ledger` (read) |
-
-Akeyless matches the full SPIFFE ID, so a compromised `billing` workload cannot
-read `payouts`'s bank credential. The trust domain groups the services; the
-path distinguishes them and carries per-workload authorization.
+One trust domain hosts many workloads so each can have least-privilege access to
+a different secret. The canonical example, billing, payouts, and recon under one
+payments domain, is in
+[Concepts](01-concepts.md#separate-environments-with-separate-trust-domains).
+In Akeyless, bind each SPIFFE ID to its own role so a compromised workload
+reaches only its own secrets.
 
 The rare case where two domains must genuinely honor each other's identities
 uses SPIFFE federation, not a shared trust domain.

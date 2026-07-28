@@ -117,8 +117,19 @@ spiffe://prod.search.acme.internal/sa/indexer
 `payments` is part of the trust domain, so it sets who is trusted. `billing` is
 the workload path, so it sets which service this is and what it may do. One unit
 runs many workloads, each with its own path, so each can hold a different
-secret. The [production guide](05-production.md#business-unit-model) works
-through a multi-workload example.
+secret. This is least privilege: the services trust each other, but each needs a
+different secret, so each gets its own role binding.
+
+| Workload path | Job | Secret it may read |
+|---|---|---|
+| `/sa/billing` | charge customers | `payments/stripe-key` |
+| `/sa/payouts` | pay merchants | `payments/bank-credential` |
+| `/sa/recon` | match invoices to payments | `payments/ledger` (read) |
+
+All three share `spiffe://prod.payments.acme.internal`. Akeyless matches the
+full SPIFFE ID, so a compromised `billing` workload cannot read `payouts`'s
+bank credential. The trust domain groups the services; the path distinguishes
+them and grants each only what it needs.
 
 Two units that must not accept each other's identities get separate domains.
 The rare case where environments or units genuinely need to honor each other's
