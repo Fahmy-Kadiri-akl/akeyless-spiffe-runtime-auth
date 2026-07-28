@@ -74,8 +74,14 @@ you should re-mint it.
 
 ## Required Akeyless permissions
 
-Two identities are involved. The **bootstrap** is an administrative identity
-used once. The **workload** is the runtime identity the bootstrap creates.
+Two identities touch a secret, with different jobs. The **bootstrap**
+provisions: it creates the auth method, the role, and the secret. The
+**workload** reads the secret at runtime, through the role bound to its SPIFFE
+ID. That SPIFFE ID is the one from your trust domain, so these capabilities map
+onto the identities in [Concepts](01-concepts.md) and the
+provisioning-versus-reading model in
+[Production](05-production.md#who-provisions-and-who-reads).
+
 Capabilities are `read`, `create`, `update`, `delete`, `list`, and `deny`. The
 rule types that matter here are `item-rule`, `auth-method-rule`, and
 `role-rule`. The [Akeyless RBAC guide](https://docs.akeyless.io/docs/rbac)

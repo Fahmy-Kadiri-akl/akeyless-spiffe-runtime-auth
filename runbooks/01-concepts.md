@@ -131,6 +131,11 @@ full SPIFFE ID, so a compromised `billing` workload cannot read `payouts`'s
 bank credential. The trust domain groups the services; the path distinguishes
 them and grants each only what it needs.
 
+Those secrets and the roles that bind each workload are put in place by an
+administrator identity, separate from the workloads. See
+[Production](05-production.md#who-provisions-and-who-reads) for the capability
+split between provisioning and reading.
+
 Two units that must not accept each other's identities get separate domains.
 The rare case where environments or units genuinely need to honor each other's
 identities uses SPIFFE federation, never a shared trust domain.
