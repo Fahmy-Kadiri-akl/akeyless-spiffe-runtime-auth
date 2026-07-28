@@ -111,9 +111,4 @@ in those volumes, so the next `up.sh` creates a fresh trust root. After a fresh
 root you must re-run `./bootstrap/setup-akeyless.sh`, because the auth method
 will hold the old, stale JWKS.
 
-## Where to go next
-
-If you want to understand every value in `.env`, including what each one means
-in production, read [Configuration](05-configuration.md). If you want to move
-this from a demo toward production, read [Production hardening](06-production.md).
-If something failed, find the matching error in [Troubleshooting](08-troubleshooting.md).
+Next: [Wiring Akeyless](04-wiring-akeyless.md)
