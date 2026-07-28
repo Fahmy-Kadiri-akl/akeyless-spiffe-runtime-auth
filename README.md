@@ -115,6 +115,10 @@ and reads the secret back from Akeyless. It prints:
       secret value: spiffe-demo-<timestamp>
 ```
 
+The `/spiffe/demo/db-password` path and `spiffe-demo-<timestamp>` value are
+the demo defaults. Override the path with `AKEYLESS_SECRET` and the value with
+`AKEYLESS_DEMO_SECRET` in `.env` before step 4.
+
 Re-run the command any time. Each run fetches a fresh SVID.
 
 ### Tear down
