@@ -37,8 +37,13 @@ spiffe://example.org/ns/default/sa/secret-consumer
        trust domain      workload path
 ```
 
-The host part is the **trust domain**. The path part names the workload inside
-it. The workload presents this ID; Akeyless maps it to a role.
+The host part is the **trust domain**, the boundary of trust. The path is
+free-form; the spec mandates only the scheme and the trust domain. This repo
+follows the Kubernetes convention `/ns/<namespace>/sa/<name>`, where `/sa/` is
+short for service account. You may use any path, such as `/service/billing`.
+The path identifies the workload, and because Akeyless matches the full SPIFFE
+ID, two workloads in the same domain get different access by using different
+paths. The workload presents this ID; Akeyless maps it to a role.
 
 ## The trust domain
 
@@ -91,12 +96,22 @@ flowchart LR
 ```
 
 If your organization also separates by business unit, encode the unit in the
-name. Each environment-and-unit pair is its own trust domain:
+trust domain. Each environment-and-unit pair is its own trust domain:
 
 ```
 spiffe://prod.payments.acme.internal/sa/billing
+        └─────────────┬────────────┘ └────┬────┘
+                 trust domain           workload
+             (environment + unit)
+
 spiffe://prod.search.acme.internal/sa/indexer
 ```
+
+`payments` is part of the trust domain, so it sets who is trusted. `billing` is
+the workload path, so it sets which service this is and what it may do. One unit
+runs many workloads, each with its own path, so each can hold a different
+secret. The [production guide](05-production.md#business-unit-model) works
+through a multi-workload example.
 
 Two units that must not accept each other's identities get separate domains.
 The rare case where environments or units genuinely need to honor each other's
