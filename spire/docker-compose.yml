@@ -12,7 +12,9 @@
 
 services:
   spire-server:
-    image: ghcr.io/spiffe/spire-server:1.15.2
+    build:
+      context: .
+      dockerfile: spire/Dockerfile.server
     # The image runs as uid 1000, but named Docker volumes are root-owned, so
     # uid 1000 cannot write its SQLite store. Run the dev server as root so it
     # can use the data volume. Production should own the volume as uid 1000 and
