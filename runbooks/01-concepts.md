@@ -190,8 +190,23 @@ of its SPIFFE ID. SPIRE supports two forms.
 
 A JWT-SVID is short-lived, measured in minutes, and issued fresh on every run.
 Akeyless validates it against a public key set, which is why the secret-reading
-path uses JWT-SVIDs. X.509-SVIDs serve a different problem, workload-to-workload
-the X.509-SVID path, shown in [guide 09](09-x509-svid-store.md).
+path uses JWT-SVIDs. X.509-SVIDs are stored in Akeyless via the Secret Manager
+plugin; see [guide 09](09-x509-svid-store.md).
+
+### Which SVID type to use
+
+| Use JWT-SVID when | Use X.509-SVID when |
+|---|---|
+| the workload authenticates to a service (Akeyless, an API, a database) | another system needs the workload identity material (a sidecar, a load balancer, a CI pipeline) |
+| the SVID should live in memory and expire fast | the SVID needs to be stored and retrieved by consumers who cannot reach the Workload API |
+| the workload can call the Workload API directly | the workload runs where no agent socket is available to external consumers |
+
+Both can run simultaneously. This repo demonstrates both: the .NET app uses a
+JWT-SVID to read a secret from Akeyless, and the Secret Manager plugin stores an
+X.509-SVID in Akeyless for consumption by other systems. The workload type is
+determined by how it is registered with SPIRE and which plugins are configured,
+not by the application language. The same .NET app, Python service, or Go binary
+can use either SVID type.
 
 ## Audience
 
