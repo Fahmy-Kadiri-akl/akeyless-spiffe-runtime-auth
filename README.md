@@ -213,7 +213,6 @@ bootstrap/                         one-time Akeyless wiring (curl, no CLI)
 agent/                             portable, app-agnostic SPIRE agent image
 │
 ├── Dockerfile.agent               slim agent image, no application
-├── agent.conf                     agent config template (env-rendered)
 ├── agent-entrypoint.sh            renders agent config from env, runs the agent
 └── deploy-agent.sh                deploy the agent on a workload host
 

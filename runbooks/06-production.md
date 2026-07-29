@@ -6,7 +6,7 @@ Each concern has a demo form and a production form.
 
 | Concern | Demo | Production |
 |---|---|---|
-| Trust root | Akeyless UpstreamAuthority | same. Use cloud identity (aws_iam/gcp/azure) instead of api_key in production |
+| Trust root | Akeyless UpstreamAuthority | same |
 | Bundle to Akeyless | inline JWKS; re-run the bootstrap on rotation | `SPIRE_BUNDLE_ENDPOINT` public endpoint; Akeyless tracks rotation |
 | Workload selector | `unix:uid:0`, any root process | dedicated UID, executable path, or container image or label selector |
 | Agent bootstrap | `insecure_bootstrap = true` | server bundle distributed out of band; flag removed |

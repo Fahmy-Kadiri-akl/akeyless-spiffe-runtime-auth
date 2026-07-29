@@ -1,7 +1,7 @@
 # Quick start
 
-Get a secret end to end on one host. This mirrors the README quick start and
-explains what each step does. Every command runs from the repository root.
+Get a secret end to end on one host. Every command runs from the repository
+root.
 
 ## 1. Clone and configure
 
