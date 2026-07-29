@@ -111,8 +111,8 @@ the repo.
 The path is configuration, so it is overridable in `.env`. The value is a
 secret, so it is never set in `.env` or the repo: create it in Akeyless through
 the console or the admin CLI at the path `AKEYLESS_SECRET` points to, and the
-bootstrap leaves it alone, because `create-secret` only runs when the path does
-not already exist.
+bootstrap leaves it alone, because the `create-secret` call is idempotent:
+it no-ops when the item already exists.
 
 ## TLS and self-signed gateways
 

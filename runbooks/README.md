@@ -3,7 +3,7 @@
 ## Reading order
 
 The runbooks are numbered and follow a learning path. First-time setup runs
-straight through 01 to 05. Guide 09 covers X.509-SVID via Secret Manager. If
+straight through 01 to 05. Guide 09 covers X.509-SVID via Akeyless Secret Manager. If
 something breaks, jump to 08.
 
 | # | Guide | When you need it |
@@ -16,7 +16,7 @@ something breaks, jump to 08.
 | 6 | [Production hardening](06-production.md) | Move from the demo to production: trust root, selectors, environments, bundle distribution, security model. |
 | 7 | [Deploying agents](07-deploying-agents.md) | Put an agent on each of your own hosts, for your own app and language. |
 | 8 | [Troubleshooting](08-troubleshooting.md) | Categorized failure modes with causes and fixes. |
-| 9 | [X.509-SVID via Secret Manager](09-x509-svid-store.md) | How X.509-SVIDs are stored in Akeyless automatically by the Secret Manager plugin. |
+| 9 | [X.509-SVID via Akeyless Secret Manager](09-x509-svid-store.md) | How X.509-SVIDs are stored in Akeyless automatically by the Secret Manager plugin. |
 | 10 | [Operations and observability](10-operations.md) | Monitor a production deployment: health checks, alerting, broken SVID detection. |
 | 11 | [Migrating from on-disk credentials](11-migration.md) | Move an existing app from a static API key to SPIFFE identity. |
 
