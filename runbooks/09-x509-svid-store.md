@@ -57,8 +57,8 @@ as a secret in Akeyless.
 
 ## What the plugin needs
 
-The Secret Manager plugin authenticates to Akeyless with its own credentials,
-separate from the workload and the bootstrap. See
+The Secret Manager plugin authenticates to Akeyless with the same `ACCESS_ID`
+and `ACCESS_KEY` as the UpstreamAuthority plugin. See
 [Prerequisites](02-prerequisites.md#creating-the-plugin-credentials)
 for the pattern; the Secret Manager auth method needs the same access-type
 options (api_key, aws_iam, gcp, azure).

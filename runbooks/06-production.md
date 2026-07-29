@@ -16,8 +16,8 @@ Each concern has a demo form and a production form.
 ## Trust root: Akeyless UpstreamAuthority
 
 The UpstreamAuthority plugin signs and rotates the trust root through Akeyless
-PKI. The demo creates the PKI issuer and configures the plugin automatically via
-`ACCESS_ID`, `ACCESS_KEY`, and `UPSTREAM_CERT_ISSUER` in
+PKI. The demo creates the PKI issuer using `AKEYLESS_TOKEN`, then configures the
+plugin with `ACCESS_ID`, `ACCESS_KEY`, and `UPSTREAM_CERT_ISSUER` from
 `.env`.
 
 ```mermaid
@@ -82,7 +82,7 @@ key rotation with no manual re-bootstrap.
 
 The rotation timeline, end to end:
 
-1. SPIRE rotates its JWT signing key every `CA_TTL`, default 24 hours.
+1. SPIRE rotates its JWT signing key on its CA rotation cadence.
 2. Inline JWKS: the auth method still holds the old key, so new SVIDs are
    rejected until you re-run `bootstrap/setup-akeyless.sh`.
 3. Bundle endpoint: Akeyless fetches the new bundle on its own, and

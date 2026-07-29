@@ -18,8 +18,8 @@ Six steps, in order:
 2. Convert it to a standard JWKS with `bootstrap/spiffe-bundle-to-jwks.py`.
 3. Create the OAuth2/JWT auth method with that JWKS, so Akeyless can verify SVID
    signatures.
-4. Create a least-privilege role bound to the workload's SPIFFE ID, granting
-   read on the secret folder.
+4. Create a least-privilege role, associate it with the auth method (bound to
+   the workload's SPIFFE ID), and grant read and list on the secret folder.
 5. Create the demo secret with a generated value, if it does not already exist.
 6. Publish the auth method's access id to `spire/.data/akeyless-access-id` so
    the app can find the auth method at runtime.
@@ -32,7 +32,7 @@ key. See [Prerequisites](02-prerequisites.md).
 | Object | Default path | Purpose |
 |---|---|---|
 | auth method | `/spiffe/demo/auth` | validates the JWT-SVID against the JWKS |
-| role | `/spiffe/demo/reader` | binds the workload's SPIFFE ID; grants read on the secret folder |
+| role | `/spiffe/demo/reader` | binds the workload's SPIFFE ID; grants read and list on the secret folder |
 | secret | `/spiffe/demo/db-password` | the value the app reads back |
 
 Override the paths with `AKEYLESS_AUTH_METHOD`, `AKEYLESS_ROLE`, and

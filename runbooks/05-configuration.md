@@ -55,7 +55,7 @@ SPIRE configs so a change propagates end to end.
 | Variable | Default | What it controls |
 |---|---|---|
 | `JWT_SVID_TTL` | `5m` | Lifetime of each JWT-SVID. Shorter tightens the anti-theft window, because a stolen SVID stops working sooner. |
-| `X509_SVID_TTL` | `1h` | Lifetime of each X.509-SVID, used by the mTLS demo. go-spiffe refreshes each one before expiry. |
+| `X509_SVID_TTL` | `1h` | Lifetime of each X.509-SVID, stored in Akeyless by the Secret Manager plugin. SPIRE rotates it automatically. |
 
 The agent SVID lifetime is not exposed as a variable; it stays at SPIRE's one
 hour and is renewed by the agent.
@@ -63,8 +63,9 @@ hour and is renewed by the agent.
 A tuning example. A captured JWT-SVID works until it expires, so the JWT TTL is
 the replay window. The default five minutes is a starting point. A service under
 stricter policy might set `JWT_SVID_TTL=2m` to halve that window, at the cost of
-more fetches. Shorten the JWT-SVID to tighten the theft window; keep `CA_TTL`
-long enough that key rotation is routine rather than frequent.
+more fetches. Shorten the JWT-SVID to tighten the theft window. SPIRE's CA rotation
+cadence is managed by the UpstreamAuthority plugin and is not user-settable
+in this repo.
 
 When SPIRE rotates its JWT signing key on the CA cadence, the inline JWKS on the
 Akeyless auth method goes stale, and SVIDs are rejected until you re-run

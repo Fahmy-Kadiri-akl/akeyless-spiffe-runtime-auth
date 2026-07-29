@@ -112,7 +112,7 @@ Edit `.env` and set four values:
 
 `.env` is gitignored, so none of these reach the repo.
 
-Everything else in `.env` sits under `# ---- advanced ----` and already has defaults that work for the demo. Leave it as-is. What each value means, including what it would mean in production, is in the [Configuration reference](runbooks/05-configuration.md).
+Everything else in `.env` sits under the advanced section and already has defaults that work for the demo. Leave it as-is. What each value means, including what it would mean in production, is in the [Configuration reference](runbooks/05-configuration.md).
 
 ### 3. Start SPIRE
 
