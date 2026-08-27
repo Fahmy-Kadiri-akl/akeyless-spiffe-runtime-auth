@@ -11,7 +11,7 @@ TRUST_DOMAIN="${SPIFFE_TRUST_DOMAIN:-example.org}"
 WORKLOAD_SPIFFE_ID="${WORKLOAD_SPIFFE_ID:-spiffe://example.org/ns/default/sa/secret-consumer}"
 PARENT="spiffe://${TRUST_DOMAIN}/agent/host"
 SERVER_SOCKET="/tmp/spire-server/private/api.sock"
-DC="docker compose --project-directory $ROOT -f spire/docker-compose.yml"
+DC="docker compose --project-directory $ROOT -f spire/docker-compose.yml -f spire/.data/compose-ca.yml"
 
 echo "[register] looking for an existing entry for $WORKLOAD_SPIFFE_ID ..."
 if $DC exec -T spire-server /opt/spire/bin/spire-server entry show \

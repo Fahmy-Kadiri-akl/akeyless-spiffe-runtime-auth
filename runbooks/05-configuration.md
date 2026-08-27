@@ -10,6 +10,7 @@ defaults. Each table below says what a value is and what it means in production.
 |---|---|
 | `AKEYLESS_GATEWAY` | Gateway base URL the app calls. Do not include `/api/v2`; the code appends it. Example: `https://your-account.akeyless.cloud`. |
 | `AKEYLESS_TOKEN` | Short-lived token, starting with `t-`, that authenticates the bootstrap. The only bootstrap credential; a missing token is a hard failure. Mint one however you authenticate to Akeyless and let it expire. |
+| `GATEWAY_CA_BUNDLE` | Path to the CA bundle (PEM) for gateways behind a private CA. `spire/up.sh` copies it into the topology and configures every container to trust the gateway through it. Leave unset for public-CA gateways; see [Prerequisites](02-prerequisites.md#your-akeyless-gateway-url). |
 
 `AKEYLESS_ACCESS_ID` is the auth method's access id. You do not set it. The
 bootstrap writes it into `.env` and `spire/.data/akeyless-access-id`, and the

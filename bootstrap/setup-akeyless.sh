@@ -18,7 +18,7 @@ cd "$ROOT"
 # Source .env so this works when run directly (matching the README quickstart).
 set -a; [ -f "$ROOT/.env" ] && . "$ROOT/.env"; set +a
 
-DC="docker compose --project-directory $ROOT -f spire/docker-compose.yml"
+DC="docker compose --project-directory $ROOT -f spire/docker-compose.yml -f spire/.data/compose-ca.yml"
 
 # --- required ---
 : "${AKEYLESS_GATEWAY:?AKEYLESS_GATEWAY is required. Set it in .env.}"
@@ -41,10 +41,12 @@ ACCESS_ID_FILE="$ROOT/spire/.data/akeyless-access-id"
 JWKS_URI="${SPIRE_BUNDLE_ENDPOINT:-}"
 
 # Helper: call an Akeyless REST endpoint. Args: endpoint, json-body.
+# Failures print the gateway's error to stderr and abort the script (set -e);
+# use api_quiet only where a failure is expected and handled.
 api() {
   curl -fsS -X POST "$GATEWAY/api/v2/$1" \
     -H "Content-Type: application/json" \
-    -d "$2" 2>/dev/null
+    -d "$2"
 }
 # Same but suppress errors (for idempotent create-if-absent calls).
 api_quiet() {
@@ -78,13 +80,27 @@ else
 fi
 
 # --- 2. (re)create the OAuth2/JWT auth method with the current bundle ---
-# Delete first so a stale bundle from a previous trust root is replaced.
-if api get-auth-method "$(jq -cn --arg n "$AUTH_METHOD" --arg t "$AKEYLESS_TOKEN" \
-  '{name:$n, token:$t}')" >/dev/null 2>&1; then
-  echo "[setup] refreshing auth method $AUTH_METHOD (stale JWKS would reject new SVIDs) ..."
-  api delete-auth-method "$(jq -cn --arg n "$AUTH_METHOD" --arg t "$AKEYLESS_TOKEN" \
-    '{name:$n, token:$t}')" >/dev/null
-fi
+# Delete first so a stale bundle from a previous trust root is replaced. The
+# probe distinguishes 200 (exists) and 404 (absent) from any other response:
+# a gateway error mistaken for "absent" would turn the create call below into
+# a confusing conflict instead of a clear abort here.
+am_status() {
+  curl -sS -o /dev/null -w '%{http_code}' -X POST "$GATEWAY/api/v2/get-auth-method" \
+    -H "Content-Type: application/json" \
+    -d "$(jq -cn --arg n "$AUTH_METHOD" --arg t "$AKEYLESS_TOKEN" '{name:$n, token:$t}')"
+}
+case "$(am_status)" in
+  200)
+    echo "[setup] refreshing auth method $AUTH_METHOD (stale JWKS would reject new SVIDs) ..."
+    api delete-auth-method "$(jq -cn --arg n "$AUTH_METHOD" --arg t "$AKEYLESS_TOKEN" \
+      '{name:$n, token:$t}')" >/dev/null || {
+      echo "[setup] deleting the stale auth method failed; cannot recreate it." >&2
+      exit 1
+    }
+    ;;
+  404) ;;
+  *)   echo "[setup] gateway error while probing $AUTH_METHOD; aborting." >&2; exit 1 ;;
+esac
 
 echo "[setup] creating auth method $AUTH_METHOD ..."
 if [ "$USE_URI" = true ]; then
