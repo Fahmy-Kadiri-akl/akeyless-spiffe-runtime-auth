@@ -24,6 +24,13 @@ the app. It looks like `https://your-account.akeyless.cloud`, or an internal
 gateway URL if you run one. Do not include the `/api/v2` path; the code appends
 it automatically.
 
+If your gateway serves a certificate from a private CA, which is common for
+internal gateways, also set `GATEWAY_CA_BUNDLE` in `.env` to the path of that
+CA's PEM bundle on this host. `spire/up.sh` copies the bundle into the topology
+and configures every container to trust the gateway through it. Without it, the
+SPIRE plugins reject the gateway certificate and the bring-up fails during the
+first healthcheck.
+
 ## A short-lived token for the bootstrap
 
 The bootstrap is the one-time step that wires SPIRE into Akeyless. It runs as
@@ -70,8 +77,8 @@ covers the full model.
 | Identity | What it needs |
 |---|---|
 | Workload | An `item-rule` granting `read` and `list` on the secret folder, bound to its SPIFFE ID. Nothing else. |
-| Bootstrap | `auth-method-rule` with `create`, `update`, `delete`, `read`; `role-rule` with `create`, `update`; `item-rule` with `create` on the configured paths including the PKI issuer. A full admin also works. |
-| Plugin (shared: UpstreamAuthority + Secret Manager) | `item-rule` with `read` and `update` on the PKI issuer path; `read`, `create`, `update`, and `list` on the JWT keys item; `create`, `update`, and `list` on the SVID target folder. |
+| Bootstrap | `auth-method-rule` with `create`, `update`, `delete`, `read`; `role-rule` with `create`, `update`; `item-rule` with `create` on the configured paths including the PKI issuer and its CA signer key. A full admin also works. |
+| Plugin (shared: UpstreamAuthority + Secret Manager) | `item-rule` with `read` and `update` on the PKI issuer path and `read` on its CA signer key; `read`, `create`, `update`, and `list` on the JWT keys item; `create`, `update`, and `list` on the SVID target folder. |
 
 Akeyless does not let a role grant a capability its caller lacks. The bootstrap
 grants the workload `read` and `list` on the secret folder, so the bootstrap
@@ -81,6 +88,7 @@ If you want to avoid full admin, create a role such as `/spiffe/demo/bootstrap-a
 associate it with an API-key auth method you control, and grant it:
 
 - `item-rule` on the secret folder: `create`, `read`, `list`
+- `item-rule` on the PKI issuer and CA signer key paths: `create`
 - `auth-method-rule` on the auth method: `create`, `update`, `delete`, `read`
 - `role-rule` on the role: `create`, `update`
 
@@ -120,6 +128,11 @@ The plugin credential is not ideal, but the risk is managed three ways:
 
 Replace `<admin-token>` with a token that has admin or equivalent permissions.
 
+If step 1 returns `404 unknown command`, your gateway version predates the
+consolidated auth-method API. Create the API-key auth method from the Akeyless
+console instead, under Access Methods, and give it the name above; every later
+step works unchanged.
+
 ```bash
 GATEWAY=https://your-account.akeyless.cloud
 
@@ -141,17 +154,22 @@ curl -s -X POST "$GATEWAY/api/v2/set-role-rule" \
   -H "Content-Type: application/json" \
   -d '{"role-name":"/spiffe/demo/plugin-role","path":"/spiffe/demo/pki","capability":["read","update"],"token":"<admin-token>"}'
 
-# 4. Grant read + create + update + list on the JWT keys item (UpstreamAuthority)
+# 4. Grant read on the issuer's CA signer key (UpstreamAuthority)
+curl -s -X POST "$GATEWAY/api/v2/set-role-rule" \
+  -H "Content-Type: application/json" \
+  -d '{"role-name":"/spiffe/demo/plugin-role","path":"/spiffe/demo/pki-signer-key","capability":["read"],"token":"<admin-token>"}'
+
+# 5. Grant read + create + update + list on the JWT keys item (UpstreamAuthority)
 curl -s -X POST "$GATEWAY/api/v2/set-role-rule" \
   -H "Content-Type: application/json" \
   -d '{"role-name":"/spiffe/demo/plugin-role","path":"/spiffe/demo/pki-jwt-keys","capability":["read","create","update","list"],"token":"<admin-token>"}'
 
-# 5. Grant create + update + list on the SVID folder (Secret Manager)
+# 6. Grant create + update + list on the SVID folder (Secret Manager)
 curl -s -X POST "$GATEWAY/api/v2/set-role-rule" \
   -H "Content-Type: application/json" \
   -d '{"role-name":"/spiffe/demo/plugin-role","path":"/spiffe/demo/svid","capability":["create","update","list"],"token":"<admin-token>"}'
 
-# 6. Associate the role with the auth method
+# 7. Associate the role with the auth method
 curl -s -X POST "$GATEWAY/api/v2/assoc-role-am" \
   -H "Content-Type: application/json" \
   -d '{"role-name":"/spiffe/demo/plugin-role","am-name":"/spiffe/demo/plugin-auth","token":"<admin-token>"}'
