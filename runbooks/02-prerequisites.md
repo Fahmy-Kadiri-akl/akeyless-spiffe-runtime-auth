@@ -11,7 +11,7 @@ back to a missed prerequisite here.
   docker compose version
   ```
 
-  Expected: a version line like `Docker Compose version v2.x`. If you see
+  You should see a version line like `Docker Compose version v2.x`. If you see
   `unknown command: docker compose`, install the plugin.
 
 - [ ] Docker can reach the internet to pull images (`ghcr.io` for the SPIRE
@@ -31,9 +31,9 @@ back to a missed prerequisite here.
   chmod +x akeyless
   ```
 
-  The CLI self-installs into `~/.akeyless/bin` on first run. This CLI is used
-  only to mint a token and run the bootstrap; the CLI bundled in the container
-  is for the app at runtime.
+  The CLI is needed only on this admin host, to mint the token and to run the
+  bootstrap. The app itself never uses the CLI; it calls the Akeyless REST API
+  directly.
 
 - [ ] A short-lived token to run the bootstrap. Mint one with whichever auth
   method you prefer:
@@ -53,8 +53,8 @@ back to a missed prerequisite here.
 akeyless get-auth-method --name /does-not-matter --token <your-t-token>
 ```
 
-Expected: an error about the method not existing, not an auth error. An auth
-error means the token is invalid or expired; re-mint it.
+You should see an error about the method not existing, not an auth error. An
+auth error means the token is invalid or expired; re-mint it.
 
 ## Python (optional)
 

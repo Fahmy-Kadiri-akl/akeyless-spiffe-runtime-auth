@@ -68,9 +68,6 @@ git clone https://github.com/Fahmy-Kadiri-akl/akeyless-spiffe-runtime-auth.git
 cd akeyless-spiffe-runtime-auth
 ```
 
-**Expected:** a local checkout of the repo.
-**Why:** the host image and scripts run from this source.
-
 ### 2. Configure
 
 ```bash
@@ -84,9 +81,6 @@ AKEYLESS_GATEWAY=https://your-account.akeyless.cloud/api/v2
 AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
 ```
 
-**Expected:** a `.env` with the gateway and token set.
-**Why:** every later command reads the gateway and token from `.env`, so nothing is hardcoded.
-
 > [!TIP]
 > The demo secret lives only in Akeyless, generated there by the bootstrap. In a real deployment you provision your own secret in Akeyless and point `AKEYLESS_SECRET` at it; the app reads it at runtime from Akeyless.
 
@@ -96,8 +90,8 @@ AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
 ./spire/up.sh
 ```
 
-**Expected:** the script ends with `==> SPIRE is up.`
-**Why:** the agent must be attesting and issuing SVIDs before Akeyless is wired. The host image is pulled pre-built from GHCR.
+The script ends with `==> SPIRE is up.` It pulls the pre-built host image from
+GHCR, starts the server and agent, and registers the workload.
 
 ### 4. Wire Akeyless
 
@@ -105,8 +99,8 @@ AKEYLESS_TOKEN=<your-temp-token-from-akeyless-auth>
 ./bootstrap/setup-akeyless.sh
 ```
 
-**Expected:** the script ends with `[setup] done.`
-**Why:** the workload can authenticate only after the auth method and role exist.
+The script ends with `[setup] done.` It creates the auth method, the role, and
+the demo secret in Akeyless.
 
 ### 5. Read the secret
 
@@ -115,7 +109,8 @@ docker compose --project-directory . -f spire/docker-compose.yml exec host \
   dotnet /app/bin/Release/net8.0/secret-consumer.dll
 ```
 
-**Expected:**
+The app fetches an SVID from the Workload API, authenticates to the Akeyless
+REST API with it, and reads the secret:
 
 ```
 [1/3] Fetching JWT-SVID ... got SVID (330 bytes), sub=spiffe://example.org/ns/default/sa/secret-consumer
@@ -123,7 +118,7 @@ docker compose --project-directory . -f spire/docker-compose.yml exec host \
 [3/3] Reading secret /spiffe/demo/db-password ... secret value: spiffe-demo-<timestamp>
 ```
 
-**Why:** this proves the SVID was accepted and the role granted read access. The app fetches the SVID from the Workload API, then calls the Akeyless REST API directly with `HttpClient` to authenticate and read the secret. Re-run any time; each run fetches a fresh SVID.
+Re-run any time; every run fetches a fresh SVID.
 
 > [!TIP]
 > The reference app calls the Akeyless REST API directly. For the full API surface, see the [Akeyless Postman collection](https://github.com/Fahmy-Kadiri-akl/akeyless-postman-collection), which documents `/api/v2/auth`, `/api/v2/get-secret-value`, and the rest of the v2 endpoints.
